@@ -5,7 +5,14 @@ import { cn } from "@/lib/utils"
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
+}
 
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  console.log(444, e.target.value)
+  // setSlug(slugify(e.target.value, {
+  //   lower: true,
+  //   replacement: '-'
+  // },));
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(

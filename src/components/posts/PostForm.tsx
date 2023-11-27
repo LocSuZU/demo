@@ -31,6 +31,7 @@ const PostForm = ({
   closeModal: () => void;
 }) => {
   const inputFileRef = useRef<HTMLInputElement>(null);
+  const [slug, setSlug] = useState<string>('');
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
   const { toast } = useToast();
 
@@ -116,6 +117,11 @@ const PostForm = ({
     });
   }
 
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    form.setValue('slug', slugify(e.target.value));
+    form.setValue('title', e.target.value);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, onError)} className={"space-y-8"}>
@@ -125,14 +131,13 @@ const PostForm = ({
           render={({ field }) => (<FormItem>
             <FormLabel>Title</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} onChange={onChange} />
             </FormControl>
-
             <FormMessage />
           </FormItem>
           )}
         />
-        {/* <FormField
+        <FormField
           control={form.control}
           name="slug"
           render={({ field }) => (<FormItem>
@@ -144,7 +149,7 @@ const PostForm = ({
             <FormMessage />
           </FormItem>
           )}
-        /> */}
+        />
         <FormField
           control={form.control}
           name="content"
@@ -153,7 +158,6 @@ const PostForm = ({
             <FormControl>
               <Input {...field} value={field.value || ''} />
             </FormControl>
-
             <FormMessage />
           </FormItem>
           )}
