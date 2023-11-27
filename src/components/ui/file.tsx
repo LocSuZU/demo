@@ -3,11 +3,11 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  onChangeFile?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+
 }
 
 const InputFile = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, onChangeFile, ...props }, ref) => {
+  ({ className, type, ...props }, ref) => {
     return (
       <input
         type={"file"} // Set type to "file" for file input
@@ -17,11 +17,6 @@ const InputFile = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         ref={ref}
         {...props}
-        onChange={(event) => {
-          if (type === "file" && onChangeFile) {
-            onChangeFile(event); // Handle file selection
-          }
-        }}
       />
     );
   }

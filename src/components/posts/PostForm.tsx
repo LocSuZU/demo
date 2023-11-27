@@ -14,7 +14,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { InputFile } from "@/components/ui/file";
 import { trpc } from "@/lib/trpc/client";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
@@ -22,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import type { PutBlobResult } from '@vercel/blob';
 import { useState, useRef } from 'react';
-import { upload } from '@vercel/blob/client';
+
 
 const PostForm = ({
   post,
@@ -95,6 +94,7 @@ const PostForm = ({
       {
         method: 'POST',
         body: file,
+
       },
     );
     const newBlob = (await response.json()) as PutBlobResult;
@@ -115,8 +115,6 @@ const PostForm = ({
       description: `Post not created!`,
     });
   }
-
-
 
   return (
     <Form {...form}>
@@ -153,7 +151,7 @@ const PostForm = ({
           render={({ field }) => (<FormItem>
             <FormLabel>Content</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} value={field.value || ''} />
             </FormControl>
 
             <FormMessage />
