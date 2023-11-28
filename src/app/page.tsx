@@ -10,6 +10,9 @@ export default async function Home() {
         <Link href="/posts"> Posts </Link>
       </div>
       <div>
+        <Link href="/feeds"> Feeds </Link>
+      </div>
+      <div>
         <Link href="https://github.com/LocSuZU/demo"> GithHub </Link>
       </div>
       <div>

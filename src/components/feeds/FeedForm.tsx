@@ -3,7 +3,7 @@
 import { Feed, NewFeedParams, insertFeedParams } from "@/lib/db/schema/feeds";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { motion } from 'framer-motion';
 import {
@@ -22,6 +22,10 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
 import { PutBlobResult } from "@vercel/blob";
+
+interface FileWithPreview extends File {
+  preview?: string;
+}
 
 
 const FeedForm = ({
@@ -66,10 +70,10 @@ const FeedForm = ({
     trpc.feeds.createFeed.useMutation({
       onSuccess: async ({ feed }) => {
         if (files.length > 0 && feed) {
-          files.forEach(file => {
+          files.forEach((file: FileWithPreview) => {
             const feedId = feed.id;
             setLoading(true);
-            mutation.mutate({ feedId: feedId, url: file?.preview });
+            mutation.mutate({ feedId: feedId, url: file.preview || '' });
           });
           onSuccess("create");
         }
@@ -86,12 +90,18 @@ const FeedForm = ({
       onSuccess: () => onSuccess("delete"),
     });
 
-  const onDrop = useCallback((acceptedFiles: Array<File>) => {
+  interface FileWithPreview extends File {
+    preview?: string;
+  }
+
+  const onDrop = useCallback((acceptedFiles: Array<FileWithPreview>) => {
     if (acceptedFiles?.length) {
       setFiles(previousFiles => [
         ...previousFiles,
-        ...acceptedFiles.map(file =>
-          Object.assign(file, { preview: URL.createObjectURL(file) })
+        ...acceptedFiles.map((file: FileWithPreview) => {
+          const previewURL = URL.createObjectURL(file);
+          return Object.assign(file, { preview: previewURL })
+        }
         )
       ])
     }
@@ -131,6 +141,12 @@ const FeedForm = ({
   }
 
 
+  useEffect(() => {
+    return () => files.forEach((file: FileWithPreview) => {
+      if (file.preview) URL.revokeObjectURL(file.preview)
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Form {...form}>
@@ -150,9 +166,9 @@ const FeedForm = ({
         />
         <FormField
           control={form.control}
-          name="images"
+          name="content"
           render={({ field }) => (<FormItem>
-            <FormLabel>Images</FormLabel>
+            <FormLabel>Image</FormLabel>
             <FormControl>
               <div {...getRootProps()}>
                 <input {...getInputProps()} />
@@ -167,14 +183,18 @@ const FeedForm = ({
           </FormItem>
           )}
         />
-        {files.map((file, index) => {
+        {files.map((file: FileWithPreview, index) => {
           return (
             <div key={index}>
               <motion.div
                 animate={{ scale: [0, 1], opacity: [0, 1] }}
                 transition={{ duration: 0.5 }}
               >
-                <Image src={file?.preview} width={100} height={100} alt={file?.file?.name} />
+                <Image src={file?.preview || ''} width={100} height={100} alt={file?.preview || ''} onLoad={() => {
+                  if (file.preview) {
+                    URL.revokeObjectURL(file.preview)
+                  }
+                }} />
               </motion.div>
             </div>
           )
