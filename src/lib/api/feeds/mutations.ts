@@ -28,7 +28,7 @@ export const updateFeed = async (id: FeedId, feed: UpdateFeedParams) => {
   const { id: feedId } = feedIdSchema.parse({ id });
   const newFeed = updateFeedSchema.parse({ ...feed, userId: session?.user.id! });
   try {
-    const f = await db.feed.update({ where: { id: feedId, userId: session?.user.id! }, data: newFeed})
+    const f = await db.feed.update({ where: { id: feedId }, data: newFeed})
     return { feed: f };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
@@ -41,7 +41,7 @@ export const deleteFeed = async (id: FeedId) => {
   const { session } = await getUserAuth();
   const { id: feedId } = feedIdSchema.parse({ id });
   try {
-    const f = await db.feed.delete({ where: { id: feedId, userId: session?.user.id! }})
+    const f = await db.feed.delete({ where: { id: feedId}})
     return { feed: f };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";

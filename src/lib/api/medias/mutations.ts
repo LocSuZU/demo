@@ -1,13 +1,13 @@
 import { db } from "@/lib/db/index";
 import { 
   MediaId, 
-  FeedId,
   NewMediaParams,
   UpdateMediaParams, 
   updateMediaSchema,
   insertMediaSchema, 
   mediaIdSchema 
 } from "@/lib/db/schema/medias";
+
 
 export const createMedia = async (media: NewMediaParams) => {
   const newMedia = insertMediaSchema.parse(media);

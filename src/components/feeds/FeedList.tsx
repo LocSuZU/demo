@@ -2,6 +2,9 @@
 import { CompleteFeed } from "@/lib/db/schema/feeds";
 import { trpc } from "@/lib/trpc/client";
 import FeedModal from "./FeedModal";
+import Image from "next/image";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import { Key } from "react";
 
 
 export default function FeedList({ feeds }: { feeds: CompleteFeed[] }) {
@@ -25,13 +28,26 @@ export default function FeedList({ feeds }: { feeds: CompleteFeed[] }) {
   );
 }
 
+
+
 const Feed = ({ feed }: { feed: CompleteFeed }) => {
+
   return (
     <li className="flex justify-between my-2">
+      {
+        feed.medias.length > 0 && feed.medias.map((media: { id: Key | null | undefined; url: string; }) => {
+          return (
+            <div className="w-1/4" key={media.id}>
+              <Image src={media.url} width={100} height={100} alt={media.url} />
+            </div>
+          )
+        })
+      }
+      <div>
+      </div>
       <div className="w-full">
         <div>{feed.content}</div>
       </div>
-
       <FeedModal feed={feed} />
     </li>
   );
