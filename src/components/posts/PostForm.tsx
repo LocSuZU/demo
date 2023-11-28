@@ -23,6 +23,7 @@ import type { PutBlobResult } from '@vercel/blob';
 import { useState, useRef } from 'react';
 
 
+
 const PostForm = ({
   post,
   closeModal,
@@ -31,7 +32,7 @@ const PostForm = ({
   closeModal: () => void;
 }) => {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const [slug, setSlug] = useState<string>('');
+  const [checkSlug, setCheckSlug] = useState<boolean>(false);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
   const { toast } = useToast();
 
@@ -80,10 +81,12 @@ const PostForm = ({
     });
 
   const onSubmit = async (values: NewPostParams) => {
-    values.slug = slugify(values.title, {
+    values.slug = slugify(values.slug, {
       lower: true,
-      replacement: '-'
-    },);
+      replacement: '-',
+      strict: true,
+      trim: true,
+    },)
 
     if (!inputFileRef.current?.files) {
       throw new Error('No file selected');
@@ -118,9 +121,26 @@ const PostForm = ({
   }
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    form.setValue('slug', slugify(e.target.value));
-    form.setValue('title', e.target.value);
+    if (!checkSlug) {
+      form.setValue('slug', slugify(e.target.value, {
+        lower: true,
+        replacement: '-',
+        strict: true,
+        trim: true,
+      },
+      ));
+      form.setValue('title', e.target.value);
+    } else {
+      form.setValue('title', e.target.value);
+    }
   };
+
+  const handleOnChangeSlug = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCheckSlug(true);
+
+    form.setValue('slug', e.target.value);
+  }
+
 
   return (
     <Form {...form}>
@@ -143,7 +163,7 @@ const PostForm = ({
           render={({ field }) => (<FormItem>
             <FormLabel>Slug</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} onChange={handleOnChangeSlug} />
             </FormControl>
 
             <FormMessage />
