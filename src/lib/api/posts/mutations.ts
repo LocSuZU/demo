@@ -9,9 +9,6 @@ import {
 } from "@/lib/db/schema/posts";
 import { getUserAuth } from "@/lib/auth/utils";
 
-
-
-
 export const createPost = async (post: NewPostParams) => {
   const { session } = await getUserAuth();
   const newPost = insertPostSchema.parse({ ...post, userId: session?.user.id! });

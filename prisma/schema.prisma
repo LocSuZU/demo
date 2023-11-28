@@ -62,6 +62,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
+  feeds         Feed[]
 }
 
 model VerificationToken {
@@ -73,12 +74,28 @@ model VerificationToken {
 }
 
 model Post {
-  id      Int    @id @default(autoincrement())
-  title   String @default("")
-  slug    String @unique 
+  id      Int     @id @default(autoincrement())
+  title   String  @default("")
+  slug    String  @unique
   content String?
-  image   String?  
+  image   String?
   userId  String
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
+}
+
+model Feed {
+  id      String  @id @default(cuid())
+  content String?
+  userId  String
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medias  Media[]
+}
+
+model Media {
+  id     String @id @default(cuid())
+  url    String
+  feedId String
+  feed   Feed   @relation(fields: [feedId], references: [id], onDelete: Cascade)
 }

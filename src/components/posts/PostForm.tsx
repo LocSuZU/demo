@@ -3,8 +3,6 @@
 import { Post, NewPostParams, insertPostParams } from "@/lib/db/schema/posts";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import slugify from "slugify";
-
 import {
   Form,
   FormControl,
@@ -21,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import type { PutBlobResult } from '@vercel/blob';
 import { useState, useRef } from 'react';
+import { slugifySlug } from '@/lib/utils';
 
 
 
@@ -81,12 +80,13 @@ const PostForm = ({
     });
 
   const onSubmit = async (values: NewPostParams) => {
-    values.slug = slugify(values.slug, {
+    values.slug = slugifySlug(values.slug, {
       lower: true,
       replacement: '-',
       strict: true,
       trim: true,
     },)
+
 
     if (!inputFileRef.current?.files) {
       throw new Error('No file selected');
@@ -98,7 +98,6 @@ const PostForm = ({
       {
         method: 'POST',
         body: file,
-
       },
     );
     const newBlob = (await response.json()) as PutBlobResult;
@@ -114,21 +113,18 @@ const PostForm = ({
 
   const onError = (error: any) => {
     console.log('error', error);
-    toast({
-      title: 'Error',
-      description: `Post not created!`,
-    });
+
   }
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!checkSlug) {
-      form.setValue('slug', slugify(e.target.value, {
+      const slug = slugifySlug(e.target.value, {
         lower: true,
         replacement: '-',
         strict: true,
         trim: true,
-      },
-      ));
+      });
+      form.setValue('slug', slug);
       form.setValue('title', e.target.value);
     } else {
       form.setValue('title', e.target.value);
@@ -137,10 +133,15 @@ const PostForm = ({
 
   const handleOnChangeSlug = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCheckSlug(true);
-
-    form.setValue('slug', e.target.value);
+    const slug = slugifySlug(e.target.value,
+      {
+        lower: true,
+        replacement: '-',
+        strict: true,
+        trim: false,
+      });
+    form.setValue('slug', slug);
   }
-
 
   return (
     <Form {...form}>
