@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { motion } from 'framer-motion';
+
 import {
   Form,
   FormControl,
@@ -73,7 +73,6 @@ const FeedForm = ({
           files.forEach((file: FileWithPreview) => {
             if (file.preview) {
               const feedId = feed.id;
-              setLoading(true);
               mutation.mutate({ feedId: feedId, url: file.preview });
             }
           });
@@ -99,6 +98,7 @@ const FeedForm = ({
 
   const onDrop = useCallback((acceptedFiles: Array<FileWithPreview>) => {
     if (acceptedFiles?.length) {
+      setLoading(true)
       Promise.all(
         acceptedFiles.map((file: FileWithPreview) => uploadVercel(file))
       ).then((urls: string[]) => {
@@ -106,17 +106,34 @@ const FeedForm = ({
           ...previousFiles,
           ...urls.map((url, index) => Object.assign(acceptedFiles[index], { preview: url }))
         ]);
+        setLoading(false)
       });
     }
   }, []);
+  // const onDrop = useCallback((acceptedFiles: Array<FileWithPreview>) => {
+  //   if (acceptedFiles?.length) {
+  //     acceptedFiles.forEach((file: FileWithPreview) => {
+  //       setLoading(true);
+  //       uploadVercel(file).then((url: string) => {
+  //         setFiles(previousFiles => [
+  //           ...previousFiles,
+  //           Object.assign(file, { preview: url })
+  //         ]);
+  //         setLoading(false);
+  //       });
+  //     });
+  //   }
+  // }, []);
+
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop
   });
 
 
 
-
   const handleSubmit = async (values: NewFeedParams) => {
+
     if (editing) {
       updateFeed({ ...values, id: feed.id });
     } else {
@@ -129,14 +146,12 @@ const FeedForm = ({
   }
 
 
-
   useEffect(() => {
     return () => files.forEach((file: FileWithPreview) => {
       if (file.preview) URL.revokeObjectURL(file.preview)
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit, onError)} className={"space-y-8"}>
@@ -175,23 +190,20 @@ const FeedForm = ({
         {files.map((file: FileWithPreview, index) => {
           return (
             <div key={index}>
-              <motion.div
-                animate={{ scale: [0, 1], opacity: [0, 1] }}
-                transition={{ duration: 0.5 }}
-              >
-                {
-                  !file ? <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg> :
-                    <Image src={file?.preview || ''} width={100} height={100} alt={file?.preview || ''} onLoad={() => {
-                      if (file.preview) {
-                        URL.revokeObjectURL(file.preview)
-                      }
-                    }} />
-                }
-
-              </motion.div>
+              {
+                loading ?
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="black" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="black" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </>
+                  : (
+                    <>
+                      <Image src={file?.preview || ''} width={100} height={100} alt={file?.preview || ''} />
+                    </>
+                  )
+              }
             </div>
           )
         })
