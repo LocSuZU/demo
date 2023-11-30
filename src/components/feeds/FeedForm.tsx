@@ -24,7 +24,7 @@ import Image from "next/image";
 import { uploadVercel } from "@/lib/utils";
 
 interface FileWithPreview extends File {
-  loading: any;
+  loading?: boolean;
   preview?: string;
 }
 
@@ -91,8 +91,6 @@ const FeedForm = ({
     trpc.feeds.deleteFeed.useMutation({
       onSuccess: () => onSuccess("delete"),
     });
-
-
 
   const onDrop = useCallback((acceptedFiles: Array<FileWithPreview>) => {
     if (acceptedFiles?.length) {
