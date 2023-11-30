@@ -14,7 +14,6 @@ export default function UserList({ users }: { users: CompleteUser[] }) {
     refetchOnMount: false,
   });
 
-
   if (u.users.length === 0) {
     return <EmptyState />;
   }
@@ -30,6 +29,7 @@ export default function UserList({ users }: { users: CompleteUser[] }) {
 
 const User = ({ user }: { user: CompleteUser }) => {
   const session = useSession();
+
   const mutation = trpc.users.createFollowUser.useMutation();
   const handleFollow = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -39,6 +39,7 @@ const User = ({ user }: { user: CompleteUser }) => {
     }
     await mutation.mutate(data);
   };
+
   return (
     <li className="flex justify-between my-2">
       <div className="w-full">
@@ -48,7 +49,11 @@ const User = ({ user }: { user: CompleteUser }) => {
         <div>{user.email}</div>
       </div>
       <div className="w-full">
-        <Button onClick={(e) => handleFollow(e, user.id)}>Follow</Button>
+        <Button onClick={(e) => handleFollow(e, user.id)}>
+          {
+            user.followers.length > 0 ? "Following" : "Follow"
+          }
+        </Button>
       </div>
     </li >
   );

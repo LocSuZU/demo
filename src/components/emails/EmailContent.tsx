@@ -1,16 +1,25 @@
 
 import * as React from "react";
 
-interface EmailTemplateProps {
-  firstName: string;
+interface EmailContent {
+  name: string;
+  post: {
+    id: number;
+    title: string;
+    slug: string;
+    userId: string;
+    content?: string | null;
+    image?: string | null;
+  };
 }
 
-export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
-  firstName,
+export const EmailContent: React.FC<Readonly<EmailContent>> = ({
+  name,
+  post: p,
 }) => {
   return (
     <div>
-      <h1>Welcome, {firstName}!</h1>
+      <h1>Welcome, {name}!</h1>
       <p>
         Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim
         labore culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet.
@@ -23,7 +32,7 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
         excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco
         ut ea consectetur et est culpa et culpa duis.
       </p>
-
+      <img src={p.image || ''} alt={p.title} />
       <hr />
       <p>Sent with help from Resend and Kirimase 😊</p>
     </div>

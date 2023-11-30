@@ -2,6 +2,7 @@ import { db } from "@/lib/db/index";
 import { getUserAuth } from "@/lib/auth/utils";
 import { type PostId, postIdSchema } from "@/lib/db/schema/posts";
 
+
 export const getPosts = async () => {
   const { session } = await getUserAuth();
   const p = await db.post.findMany({ where: {userId: session?.user.id!}});

@@ -7,7 +7,6 @@ import {
 
 export const createFollowUser = async (follo: NewFolloParams) => {
   const newFollo = insertFolloSchema.parse(follo);
-  console.log('session', newFollo )
   try {
     const f = await db.follo.create({
       data: {
