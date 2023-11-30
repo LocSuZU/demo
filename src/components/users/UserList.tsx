@@ -4,7 +4,6 @@ import { trpc } from "@/lib/trpc/client";
 import { Button } from "../ui/button";
 
 
-
 export default function UserList({ users }: { users: CompleteUser[] }) {
   const { data: u } = trpc.users.getUsers.useQuery(undefined, {
     initialData: { users },
@@ -24,6 +23,10 @@ export default function UserList({ users }: { users: CompleteUser[] }) {
   );
 }
 
+const handleFollow = (event: React.MouseEvent<HTMLButtonElement>) => {
+  // Your code here
+
+};
 const User = ({ user }: { user: CompleteUser }) => {
 
   return (
@@ -35,7 +38,7 @@ const User = ({ user }: { user: CompleteUser }) => {
         <div>{user.email}</div>
       </div>
       <div className="w-full">
-        <Button >Follow</Button>
+        <Button onClick={handleFollow} >Follow</Button>
       </div>
     </li>
   );

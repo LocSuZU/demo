@@ -14,7 +14,6 @@ export async function POST(request: Request) {
       react: EmailTemplate({ firstName: name }),
       text: "Email powered by Resend.",
     });
-
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({ error });
