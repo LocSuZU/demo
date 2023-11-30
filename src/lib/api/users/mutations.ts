@@ -1,9 +1,12 @@
-import { getUserAuth } from "@/lib/auth/utils";
+
 import { db } from "@/lib/db/index";
 import { 
   insertFolloSchema,
-  NewFolloParams
+  NewFolloParams,
+  folloIdSchema,
+  FolloId
 } from "@/lib/db/schema/follow";
+
 
 export const createFollowUser = async (follo: NewFolloParams) => {
   const newFollo = insertFolloSchema.parse(follo);
@@ -29,3 +32,17 @@ export const createFollowUser = async (follo: NewFolloParams) => {
     return { error: message };
   }
 };
+
+export const deleteFollowUser = async (id: FolloId ) => {
+  console.log(4444, id)
+  const { id: FolloId } = folloIdSchema.parse({ id });
+  try {
+    const u = await db.follo.delete({ where: {id : FolloId}})
+    return { users: u };
+  } catch (err) {
+    const message = (err as Error).message ?? "Error, please try again";
+    console.error(message);
+    return { error: message };
+  }
+  
+}

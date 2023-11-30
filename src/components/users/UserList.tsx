@@ -34,7 +34,7 @@ const User = ({ user }: { user: CompleteUser }) => {
   const session = useSession();
   const router = useRouter();
   const utils = trpc.useContext();
-  const onSuccess = async (action: "create" | "update" | "delete" | "success") => {
+  const onSuccess = async (action: "create" | "update" | "delete" | "success" | "unfollow") => {
     await utils.users.getUsers.invalidate();
     router.refresh();
     toast({
@@ -43,15 +43,38 @@ const User = ({ user }: { user: CompleteUser }) => {
       variant: "default",
     });
   };
-  const mutation = trpc.users.createFollowUser.useMutation();
-  const handleFollow = async (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    await mutation.mutate({
-      followerId: session.data?.user?.id as string,
-      followedId: id,
-    }, {
+  // const mutation = trpc.users.createFollowUser.useMutation();
+
+  const { mutate: followerUser } =
+    trpc.users.createFollowUser.useMutation({
       onSuccess: () => onSuccess("success"),
     });
+
+  const { mutate: unfollowUser } =
+    trpc.users.deleteFollowUser.useMutation({
+      onSuccess: () => onSuccess("unfollow"),
+    });
+
+  const handleFollow = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    const followerId = session.data?.user?.id as string;
+    const followedId = id;
+    const isAlreadyFollowing = user.followers.find(item => item.followedId === followedId && item.followerId === followerId);
+    if (isAlreadyFollowing) {
+      toast({
+        title: 'Confirmation',
+        description: `You are already following this user. Do you want to unfollow?`,
+        variant: "default",
+        action: <Button onClick={() => unfollowUser({ id: isAlreadyFollowing.id })}>Unfollow</Button>,
+      });
+    } else {
+      followerUser({
+        followerId: followerId,
+        followedId: followedId,
+      }, {
+        onSuccess: () => onSuccess("success"),
+      });
+    }
   };
 
   return (

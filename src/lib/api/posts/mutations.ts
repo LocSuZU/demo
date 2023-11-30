@@ -14,6 +14,8 @@ import { EmailContent } from "@/components/emails/EmailContent";
 
 
 export const createPost = async (post: NewPostParams) => {
+  const { session } = await getUserAuth();
+  const newPost = insertPostSchema.parse({ ...post, userId: session?.user.id! });
   const prisma = new PrismaClient().$extends({
     query: {
       post: {
@@ -48,7 +50,7 @@ export const createPost = async (post: NewPostParams) => {
       },
     },
   })
-  await prisma.post.create(post)
+  await prisma.post.create({data : newPost})
   // const { session } = await getUserAuth();
   // const newPost = insertPostSchema.parse({ ...post, userId: session?.user.id! });
   // try {
