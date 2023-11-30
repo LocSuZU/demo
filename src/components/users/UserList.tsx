@@ -90,6 +90,7 @@ const User = ({ user }: { user: CompleteUser }) => {
       <div className="w-full">
         <Button onClick={(e) => handleFollow(e, user.id)}>
           {
+            // @ts-ignore
             user.followers.length > 0 ? "Following" : "Follow"
           }
         </Button>
