@@ -4,7 +4,8 @@
     "shadcn-ui",
     "prisma",
     "next-auth",
-    "trpc"
+    "trpc",
+    "resend"
   ],
   "preferredPackageManager": "npm",
   "t3": false,

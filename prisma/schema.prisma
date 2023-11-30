@@ -63,6 +63,8 @@ model User {
   sessions      Session[]
   posts         Post[]
   feeds         Feed[]
+  follows       Follow[]  @relation("Follows")
+  followers     Follow[]  @relation("FollowedBy")
 }
 
 model VerificationToken {
@@ -100,3 +102,11 @@ model Media {
   feed   Feed   @relation(fields: [feedId], references: [id], onDelete: Cascade)
 }
 
+model Follow {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  follower   User     @relation("Follows", fields: [followerId], references: [id])
+  followed   User     @relation("FollowedBy", fields: [followedId], references: [id])
+  followerId String
+  followedId String
+}
