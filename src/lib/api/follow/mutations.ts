@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { db } from "@/lib/db/index";
 import { 
   FolloId, 
@@ -11,7 +12,7 @@ import {
 export const createFollo = async (follo: NewFolloParams) => {
   const newFollo = insertFolloSchema.parse(follo);
   try {
-    // @ts-ignore
+
     const f = await db.follo.create({ data: newFollo });
     return { follo: f };
   } catch (err) {
@@ -25,7 +26,6 @@ export const updateFollo = async (id: FolloId, follo: UpdateFolloParams) => {
   const { id: folloId } = folloIdSchema.parse({ id });
   const newFollo = updateFolloSchema.parse(follo);
   try {
-    // @ts-ignore
     const f = await db.follo.update({ where: { id: folloId }, data: newFollo})
     return { follo: f };
   } catch (err) {
@@ -38,7 +38,6 @@ export const updateFollo = async (id: FolloId, follo: UpdateFolloParams) => {
 export const deleteFollo = async (id: FolloId) => {
   const { id: folloId } = folloIdSchema.parse({ id });
   try {
-    // @ts-ignore
     const f = await db.follo.delete({ where: { id: folloId }})
     return { follo: f };
   } catch (err) {

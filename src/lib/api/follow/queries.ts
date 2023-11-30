@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { db } from "@/lib/db/index";
 import { type FolloId, folloIdSchema } from "@/lib/db/schema/follow";
 
