@@ -60,6 +60,7 @@ const User = ({ user }: { user: CompleteUser }) => {
     e.preventDefault();
     const followerId = session.data?.user?.id as string;
     const followedId = id;
+    // @ts-ignore
     const isAlreadyFollowing = user?.followers.find(item => item.followedId === followedId && item.followerId === followerId);
     if (isAlreadyFollowing) {
       toast({
