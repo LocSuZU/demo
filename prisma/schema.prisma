@@ -99,3 +99,4 @@ model Media {
   feedId String
   feed   Feed   @relation(fields: [feedId], references: [id], onDelete: Cascade)
 }
+
