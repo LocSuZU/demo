@@ -7,6 +7,17 @@ import { Key } from "react";
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
+interface Media {
+  id: string;
+  url: string;
+  feedId: string;
+}
+interface Feed {
+  medias: Media[];
+  id: string;
+  content: string | null;
+  userId: string;
+}
 
 export default function FeedList({ feeds }: { feeds: CompleteFeed[] }) {
   const { data: f } = trpc.feeds.getFeeds.useQuery(undefined, {
@@ -22,7 +33,7 @@ export default function FeedList({ feeds }: { feeds: CompleteFeed[] }) {
 
   return (
     <ul>
-      {f.feeds.map((feed) => (
+      {f.feeds.map((feed: Feed) => (
         <Feed feed={feed} key={feed.id} />
       ))}
     </ul>
