@@ -7,6 +7,18 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
+interface Follower {
+  followedId: string;
+  followerId: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  followers: Follower[];
+  email: string;
+  image: string;
+}
 
 export default function UserList({ users }: { users: CompleteUser[] }) {
 
