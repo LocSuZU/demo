@@ -25,7 +25,6 @@ export const usersRouter = router({
   deleteFollowUser: publicProcedure
   .input(folloIdSchema)
   .mutation(async ({ input }) => {
-    console.log(333, input)
     return deleteFollowUser(input.id); 
   }),
   checkUserFollowUser: publicProcedure

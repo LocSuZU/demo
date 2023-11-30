@@ -34,7 +34,6 @@ export const createFollowUser = async (follo: NewFolloParams) => {
 };
 
 export const deleteFollowUser = async (id: FolloId ) => {
-  console.log(4444, id)
   const { id: FolloId } = folloIdSchema.parse({ id });
   try {
     const u = await db.follo.delete({ where: {id : FolloId}})
