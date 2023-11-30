@@ -1,12 +1,22 @@
-import {  getUsers } from "@/lib/api/users/queries";
+import {  getUsers  } from "@/lib/api/users/queries";
+
 import { publicProcedure, router } from "@/lib/server/trpc";
-// import {createFollow} from "@/lib/api/users/mutations";
+import {
+  NewFolloParams,
+  insertFolloParams
+} from "@/lib/db/schema/follow";
+import { createFollowUser } from "@/lib/api/users/mutations";
+
+
 
 export const usersRouter = router({
   getUsers: publicProcedure.query(async () => {
     return getUsers();
   }),
-  // createFollow : publicProcedure.mutation(async () => {
-  //   return createFollow(); 
-  // }),
+  createFollowUser: publicProcedure
+  .input(insertFolloParams)
+  .mutation(async ({ input }) => {
+    return createFollowUser(input); 
+  }),
 });
+

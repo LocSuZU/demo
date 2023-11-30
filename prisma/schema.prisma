@@ -63,9 +63,8 @@ model User {
   sessions      Session[]
   posts         Post[]
   feeds         Feed[]
-  follows       Follow[]  @relation("Follows")
-  followers     Follow[]  @relation("FollowedBy")
-  follow Follo[]
+  follows       Follo[]   @relation("Follows")
+  followers     Follo[]   @relation("FollowedBy")
 }
 
 model VerificationToken {
@@ -103,11 +102,10 @@ model Media {
   feed   Feed   @relation(fields: [feedId], references: [id], onDelete: Cascade)
 }
 
-
 model Follo {
-    id    String @id @default(cuid())
-  follower String
-  n String?
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String @id @default(cuid())
+  follower   User   @relation("Follows", fields: [followerId], references: [id])
+  followed   User   @relation("FollowedBy", fields: [followedId], references: [id])
+  followerId String
+  followedId String
 }
