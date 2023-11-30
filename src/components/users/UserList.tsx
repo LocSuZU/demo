@@ -4,6 +4,8 @@ import { trpc } from "@/lib/trpc/client";
 import { Button } from "../ui/button";
 import React from "react";
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 
 export default function UserList({ users }: { users: CompleteUser[] }) {
@@ -28,16 +30,28 @@ export default function UserList({ users }: { users: CompleteUser[] }) {
 }
 
 const User = ({ user }: { user: CompleteUser }) => {
+  const { toast } = useToast();
   const session = useSession();
-
+  const router = useRouter();
+  const utils = trpc.useContext();
+  const onSuccess = async (action: "create" | "update" | "delete" | "success") => {
+    await utils.users.getUsers.invalidate();
+    router.refresh();
+    toast({
+      title: 'Success',
+      description: `Follow ${action}d!`,
+      variant: "default",
+    });
+  };
   const mutation = trpc.users.createFollowUser.useMutation();
   const handleFollow = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
-    const data = {
+    await mutation.mutate({
       followerId: session.data?.user?.id as string,
       followedId: id,
-    }
-    await mutation.mutate(data);
+    }, {
+      onSuccess: () => onSuccess("success"),
+    });
   };
 
   return (
