@@ -7,19 +7,6 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
-interface Follower {
-  followedId: string;
-  followerId: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-  followers: Follower[];
-  email: string;
-  image: string;
-}
-
 export default function UserList({ users }: { users: CompleteUser[] }) {
 
 
@@ -42,6 +29,8 @@ export default function UserList({ users }: { users: CompleteUser[] }) {
 }
 
 const User = ({ user }: { user: CompleteUser }) => {
+
+
   const { toast } = useToast();
   const session = useSession();
   const router = useRouter();
@@ -71,7 +60,7 @@ const User = ({ user }: { user: CompleteUser }) => {
     e.preventDefault();
     const followerId = session.data?.user?.id as string;
     const followedId = id;
-    const isAlreadyFollowing = user.followers.find(item => item.followedId === followedId && item.followerId === followerId);
+    const isAlreadyFollowing = user?.followers.find(item => item.followedId === followedId && item.followerId === followerId);
     if (isAlreadyFollowing) {
       toast({
         title: 'Confirmation',
