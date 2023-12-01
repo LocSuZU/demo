@@ -7,6 +7,9 @@ import {
   insertMediaSchema, 
   mediaIdSchema 
 } from "@/lib/db/schema/medias";
+import {
+  FeedId
+} from '@/lib/db/schema/feeds';
 
 
 export const createMedia = async (media: NewMediaParams) => {
@@ -46,4 +49,14 @@ export const deleteMedia = async (id: MediaId) => {
   }
 };
 
+export const deleteMediaWithFeedId = async (id: FeedId ) => {
+  try {
+    const m = await db.media.deleteMany({ where: { feedId: id }})
+    return { media: m };
+  } catch (err) {
+    const message = (err as Error).message ?? "Error, please try again";
+    console.error(message);
+    return { error: message };
+  }
+}
 

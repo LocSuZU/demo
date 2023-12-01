@@ -26,7 +26,7 @@ export const feedsRouter = router({
     }),
   deleteFeed: publicProcedure
     .input(feedIdSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input }) => {      
       return deleteFeed(input.id);
     }),
 });

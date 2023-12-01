@@ -5,7 +5,7 @@ import {
   insertMediaParams,
   updateMediaParams,
 } from "@/lib/db/schema/medias";
-import { createMedia, deleteMedia, updateMedia } from "@/lib/api/medias/mutations";
+import { createMedia, deleteMedia, updateMedia ,deleteMediaWithFeedId } from "@/lib/api/medias/mutations";
 
 export const mediasRouter = router({
   getMedias: publicProcedure.query(async () => {
@@ -28,5 +28,11 @@ export const mediasRouter = router({
     .input(mediaIdSchema)
     .mutation(async ({ input }) => {
       return deleteMedia(input.id);
+    }),
+  deleteMediaWithFeedId: publicProcedure
+    .input(updateMediaParams)
+    .mutation(async ({ input }) => {
+      console.log(111 , input)
+      return deleteMediaWithFeedId(input.feedId)
     }),
 });

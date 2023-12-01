@@ -44,6 +44,7 @@ const FeedForm = ({
   const router = useRouter();
   const utils = trpc.useContext();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
+  const [indexImage, setIndexImage] = useState<Number>(0);
 
 
   const form = useForm<z.infer<typeof insertFeedParams>>({
@@ -81,50 +82,77 @@ const FeedForm = ({
         }
       }
     });
-
+  const deleteMediaWithFeedId = trpc.medias.deleteMediaWithFeedId.useMutation();
   const { mutate: updateFeed, isLoading: isUpdating } =
     trpc.feeds.updateFeed.useMutation({
-      onSuccess: () => onSuccess("update"),
-    });
+      onSuccess: async ({ feed }) => {
+        if (feed) {
+          const feedId = feed.id;
+          await deleteMediaWithFeedId.mutateAsync({
+            feedId: feedId,
+            id: "",
+            url: ""
+          })
+          if (files.length > 0) {
+            files.forEach((file: FileWithPreview) => {
+              if (file.preview) {
+                mutation.mutate({ feedId: feedId, url: file.preview });
+              }
+            });
+            onSuccess("update");
+          } else {
+            throw new Error("No Select File");
+          }
+        } else {
+          toast({
+            title: 'Error',
+            description: `Feed update!`,
+            variant: "default",
+          });
+        }
+      }
+    })
+
+
 
   const { mutate: deleteFeed, isLoading: isDeleting } =
     trpc.feeds.deleteFeed.useMutation({
       onSuccess: () => onSuccess("delete"),
     });
 
-  const onDrop = useCallback((acceptedFiles: Array<FileWithPreview>) => {
-    if (acceptedFiles?.length) {
-      Promise.all(
-        acceptedFiles.map((file: FileWithPreview) => uploadVercel(file))
-      ).then((urls: string[]) => {
-        setFiles(previousFiles => [
-          ...previousFiles,
-          ...urls.map((url, index) => Object.assign(acceptedFiles[index], { preview: url, loading: true }))
-        ]);
-      });
-    }
-  }, []);
-
   // const onDrop = useCallback((acceptedFiles: Array<FileWithPreview>) => {
   //   if (acceptedFiles?.length) {
-  //     setFiles(previousFiles => [
-  //       ...previousFiles,
-  //       ...acceptedFiles.map(file => ({ ...file, loading: true }))
-  //     ]);
-
-  //     acceptedFiles.forEach((file, index) => {
-  //       uploadVercel(file).then(url => {
-  //         setFiles(previousFiles => previousFiles.map((prevFile, prevIndex) => {
-  //           if (prevIndex === index + previousFiles.length) {
-  //             return { ...prevFile, preview: url, loading: false };
-  //           } else {
-  //             return prevFile;
-  //           }
-  //         }));
-  //       });
+  //     Promise.all(
+  //       acceptedFiles.map((file: FileWithPreview) => uploadVercel(file))
+  //     ).then((urls: string[]) => {
+  //       setFiles(previousFiles => [
+  //         ...previousFiles,
+  //         ...urls.map((url, index) => Object.assign(acceptedFiles[index], { preview: url, loading: true }))
+  //       ]);
   //     });
   //   }
   // }, []);
+
+  const onDrop = useCallback((acceptedFiles: Array<FileWithPreview>) => {
+    if (acceptedFiles?.length) {
+      setFiles(previousFiles => [
+        ...previousFiles,
+        ...acceptedFiles.map(file => ({ ...file, loading: true }))
+      ]);
+
+      acceptedFiles.forEach((file, index) => {
+        uploadVercel(file).then(url => {
+          setFiles(previousFiles => previousFiles.map((prevFile, prevIndex) => {
+            if (prevIndex === index + previousFiles.length - acceptedFiles.length) {
+              return { ...prevFile, preview: url, loading: false };
+            } else {
+              return prevFile;
+            }
+          }));
+        });
+      });
+    }
+  }, []);
 
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -133,7 +161,7 @@ const FeedForm = ({
 
 
   const handleSubmit = async (values: NewFeedParams) => {
-
+    console.log(222, files)
     if (editing) {
       updateFeed({ ...values, id: feed.id });
     } else {
@@ -144,8 +172,6 @@ const FeedForm = ({
   const onError = (error: any) => {
     console.log('error', error);
   }
-
-
 
 
   useEffect(() => {
@@ -192,7 +218,7 @@ const FeedForm = ({
         {files.map((file: FileWithPreview, index) => {
           return (
             <div key={index}>
-              {!file.loading ? (
+              {file.loading ? (
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="black" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="black" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
