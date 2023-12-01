@@ -16,6 +16,7 @@ import { EmailContent } from "@/components/emails/EmailContent";
 export const createPost = async (post: NewPostParams) => {
   const { session } = await getUserAuth();
   const newPost = insertPostSchema.parse({ ...post, userId: session?.user.id! });
+  //@ts-ignore
   const prisma = new PrismaClient().$extends({
     query: {
       post: {
@@ -51,16 +52,6 @@ export const createPost = async (post: NewPostParams) => {
     },
   })
   await prisma.post.create({data : newPost})
-  // const { session } = await getUserAuth();
-  // const newPost = insertPostSchema.parse({ ...post, userId: session?.user.id! });
-  // try {
-  //   const p = await db.post.create({ data: newPost });
-  //   return { post: p };
-  // } catch (err) {
-  //   const message = (err as Error).message ?? "Error, please try again";
-  //   console.error(message);
-  //   return { error: message };
-  // }
 };
 
 // export const createPost = async (post: NewPostParams) => {
