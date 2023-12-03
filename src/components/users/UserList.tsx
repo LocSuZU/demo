@@ -73,8 +73,6 @@ const User = ({ user }: { user: CompleteUser }) => {
       followerUser({
         followerId: followerId,
         followedId: followedId,
-      }, {
-        onSuccess: () => onSuccess("success"),
       });
     }
   };
