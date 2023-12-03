@@ -49,7 +49,6 @@ const User = ({ user }: { user: CompleteUser }) => {
       variant: "default",
     });
   };
-  // const mutation = trpc.users.createFollowUser.useMutation();
 
   const { mutate: followerUser } =
     trpc.users.createFollowUser.useMutation({
@@ -67,7 +66,7 @@ const User = ({ user }: { user: CompleteUser }) => {
     const followedId = id;
     // @ts-ignore
     const isAlreadyFollowing = user?.followers.find(item => item.followedId === followedId && item.followerId === followerId);
-    if (isAlreadyFollowing) {
+    if (isAlreadyFollowing && typeof isAlreadyFollowing !== 'undefined') {
       toast({
         title: 'Confirmation',
         description: `You are already following this user. Do you want to unfollow?`,

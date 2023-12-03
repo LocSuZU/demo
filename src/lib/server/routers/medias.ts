@@ -32,7 +32,6 @@ export const mediasRouter = router({
   deleteMediaWithFeedId: publicProcedure
     .input(updateMediaParams)
     .mutation(async ({ input }) => {
-      console.log(111 , input)
       return deleteMediaWithFeedId(input.feedId)
     }),
 });

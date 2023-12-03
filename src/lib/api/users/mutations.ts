@@ -34,9 +34,8 @@ export const createFollowUser = async (follo: NewFolloParams) => {
 };
 
 export const deleteFollowUser = async (id: FolloId ) => {
-  const { id: FolloId } = folloIdSchema.parse({ id });
   try {
-    const u = await db.follo.delete({ where: {id : FolloId}})
+    const u = await db.follo.delete({ where: {id : id}})
     return { users: u };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";

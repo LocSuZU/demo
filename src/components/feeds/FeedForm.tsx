@@ -161,7 +161,6 @@ const FeedForm = ({
 
 
   const handleSubmit = async (values: NewFeedParams) => {
-    console.log(222, files)
     if (editing) {
       updateFeed({ ...values, id: feed.id });
     } else {
