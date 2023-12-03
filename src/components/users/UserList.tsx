@@ -2,15 +2,18 @@
 import { CompleteUser } from "@/lib/db/schema/users";
 import { trpc } from "@/lib/trpc/client";
 import { Button } from "../ui/button";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSession } from "next-auth/react"
 import { redirect, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
-
 export default function UserList({ users }: { users: CompleteUser[] }) {
-  const session = useSession();
-  if (!session.data?.user?.id) redirect("/api/auth/signin");
+  const { data: session, status } = useSession()
+  const loading = status === 'loading'
+
+  if (!session && !loading) {
+    return redirect('api/auth/signin')
+  }
 
   const { data: u } = trpc.users.getUsers.useQuery(undefined, {
     initialData: { users },
