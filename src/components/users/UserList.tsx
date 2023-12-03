@@ -4,11 +4,13 @@ import { trpc } from "@/lib/trpc/client";
 import { Button } from "../ui/button";
 import React from "react";
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
-export default function UserList({ users }: { users: CompleteUser[] }) {
 
+export default function UserList({ users }: { users: CompleteUser[] }) {
+  const session = useSession();
+  if (!session.data?.user?.id) redirect("/api/auth/signin");
 
   const { data: u } = trpc.users.getUsers.useQuery(undefined, {
     initialData: { users },
