@@ -17,7 +17,6 @@ import { EmailContent } from "@/components/emails/EmailContent";
 export const createPost = async (post: NewPostParams) => {
   const { session } = await getUserAuth();
   const newPost = insertPostSchema.parse({ ...post, userId: session?.user.id! });
-  //@ts-ignore
   const prisma = new PrismaClient().$extends({
     query: {
       post: {
