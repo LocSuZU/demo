@@ -26,13 +26,20 @@ export const createPost = async (post: NewPostParams) => {
           try {
             const p = await db.post.create({ data: newPost });
             if(p) {
-              const u = await db.user.findMany({ where: { id:  session?.user.id  } , include: { followers: true } });
+              const u = await db.user.findFirst({ where: { id:  session?.user.id  } , 
+                include: { follows:  {
+                  include: { 
+                    followed: true
+                  }
+                } } 
+              });
               if(u){
-                u.forEach( async (follower : any) => {
-                  // đây là nơi gửi email cho từng người theo dõi hiện tại chưa verfice đc domain ko send nhiều đc
-                  const { name, email } = follower;
+                const { follows } = u;
+                follows.forEach( async (follower : any) => {
+                  const { followed } = follower;
+                  const { name, email } = followed;
                   await resend.emails.send({
-                    from: "Kirimase <onboarding@resend.dev>",
+                    from: `Kirimase <${process.env.RESEND_EMAIL}>`,
                     to: [email],
                     subject: "Hello world!",
                     react: EmailContent({ name: name, post: p }),

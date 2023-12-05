@@ -1,5 +1,4 @@
 
-import Image from "next/image";
 import * as React from "react";
 
 interface EmailContent {
@@ -33,7 +32,7 @@ export const EmailContent: React.FC<Readonly<EmailContent>> = ({
         excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco
         ut ea consectetur et est culpa et culpa duis.
       </p>
-      <Image src={p.image || ''} alt={p.title} />
+      <img src={p.image || ''} alt={p.title} />
       <hr />
       <p>Sent with help from Resend and Kirimase 😊</p>
     </div>
