@@ -26,7 +26,7 @@ export const createPost = async (post: NewPostParams) => {
           try {
             const p = await db.post.create({ data: newPost });
             if(p) {
-              const u = await db.user.findFirst({ where: { id:  session?.user.id  } , 
+              const u = await db.user.findUnique({ where: { id:  session?.user.id  } , 
                 include: { follows:  {
                   include: { 
                     followed: true
