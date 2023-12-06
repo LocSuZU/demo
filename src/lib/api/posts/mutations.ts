@@ -36,9 +36,9 @@ export const createPost = async (post: NewPostParams) => {
               });
               if(u){
                 const { followers } = u;
-                followers.forEach( async (follower : any) => {
-                  const { followed } = follower;
-                  const { name, email } = followed;
+                followers.forEach( async (Item : any) => {
+                  const {follower} = Item;
+                  const { name, email } = follower;
                   await resend.emails.send({
                     from: `Kirimase <${process.env.RESEND_EMAIL}>`,
                     to: [email],
