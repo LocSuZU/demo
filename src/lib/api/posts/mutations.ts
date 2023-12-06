@@ -29,7 +29,8 @@ export const createPost = async (post: NewPostParams) => {
               const u = await db.user.findUnique({ where: { id:  session?.user.id  } , 
                 include: { followers:  {
                   include: { 
-                    followed: true
+                    followed: true,
+                    follower : true
                   }
                 } } 
               });
