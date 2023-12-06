@@ -27,15 +27,15 @@ export const createPost = async (post: NewPostParams) => {
             const p = await db.post.create({ data: newPost });
             if(p) {
               const u = await db.user.findUnique({ where: { id:  session?.user.id  } , 
-                include: { follows:  {
+                include: { followers:  {
                   include: { 
                     followed: true
                   }
                 } } 
               });
               if(u){
-                const { follows } = u;
-                follows.forEach( async (follower : any) => {
+                const { followers } = u;
+                followers.forEach( async (follower : any) => {
                   const { followed } = follower;
                   const { name, email } = followed;
                   await resend.emails.send({
