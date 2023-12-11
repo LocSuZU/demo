@@ -4,6 +4,7 @@ import { DefaultSession, getServerSession, NextAuthOptions } from "next-auth";
 import { redirect } from "next/navigation";
 import { env } from "@/lib/env.mjs"
 import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
 
 declare module "next-auth" {
   interface Session {
@@ -35,7 +36,11 @@ export const authOptions: NextAuthOptions = {
      GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-    })
+    }),
+    FacebookProvider({
+      clientId: '1973474336496466',
+      clientSecret: 'a3f0ac4d29d40eb35ead77f83f3b411e',
+    }),
   ],
 };
 
