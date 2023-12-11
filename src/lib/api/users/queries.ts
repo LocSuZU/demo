@@ -19,9 +19,4 @@ export const getUsersFollowers = async (followedId: followedId) => {
   return { check: false };
 };
 
-export const getUsersDemo = async () => {
-  const { session } = await getUserAuth();
-  const u = await db.user.findMany({ where: { id:  { not : session?.user.id } } , include: { follows: true, followers: true } });
-  return { users: u };
-};
 

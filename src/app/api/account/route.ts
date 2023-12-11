@@ -11,3 +11,4 @@ export async function PUT(request: Request) {
   revalidatePath("/account");
   return new Response(JSON.stringify({ message: "ok" }), { status: 200 });
 }
+

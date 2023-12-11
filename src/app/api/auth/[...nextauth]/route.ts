@@ -8,6 +8,8 @@ declare module "next-auth" {
       id: string;
     };
   }
+ 
+
 }
 
 const handler = NextAuth(authOptions);
