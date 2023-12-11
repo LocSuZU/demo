@@ -37,18 +37,27 @@ type UserCreateInput ={
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
   callbacks: {
-    session: ({ session, user }) => {
-      session.user.id = user.id;
+    session: ({ session, user , token  }) => {
+      if(user){
+        session.user.id = user.id
+      }
+      if(token) {
+        session.user.id = token.id as string
+      }
       return session;
     },
-    signIn: ({user , account, profile  }) => {
-      // if(account?.provider === 'credentials') {
-      //   return true;
-      // } else {
-      //   return false;
-      // }
-      console.log(111, user)
-      return user;
+    jwt: async ({ token, user, account, profile, isNewUser }) => {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async signIn({ user, account, profile }) {
+      if(user)
+      {
+        return true;
+      } 
+      return false
     },
   },
   providers: [
@@ -63,32 +72,48 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
-        password: {  label: "Password", type: "password" }
+        name: { label: "Username", type: "text", placeholder: "johndoe" },
+        password: {  label: "Password", type: "password", placeholder: "••••••••" },
+        email: { label: "Email", type: "email", placeholder: "johndoe@example.com" }
       },
       authorize: async (credentials) => {
-        const user =  await db.user.findUnique({ where: { email: credentials?.username } , include: { accounts : true} });
-        if(user) {
-          return user;
-        } else {
-          const hashedPassword = bcrypt.hash(credentials?.password, 10);
-          const registerUser = await db.user.create({ data: { email: credentials?.username}});
-          if(registerUser) {
-            const registerAccount = await db.account.create({ data: { provider: 'credentials', 
-            type: 'credentials' ,
-            userId: registerUser.id, 
-            providerAccountId: registerUser.id,
-            id_token : hashedPassword}});
-            if(registerAccount) {
-              return registerAccount;
+        const existingUser =  await db.user.findUnique({ where: { email: credentials?.email } , include : { accounts : true } });
+        if(!existingUser) {
+          const createUser = await db.user.create({
+            data: {
+              email: credentials?.email,
+              name: credentials?.name,
+            },
+          });
+  
+          await db.account.create({
+            data: {
+              provider: "credentials",
+              type: "credentials",
+              userId: createUser.id,
+              providerAccountId: createUser.id,
+              password: await bcrypt.hash(credentials?.password, 10)
             }
-          }  else {
-              return "đăng kí thất bại"
-            } 
+          });
+          return createUser;      
+        } else {
+          if(existingUser.accounts[0].provider === "credentials") {
+           const isValidPassword = await bcrypt.compare(credentials?.password, existingUser.accounts[0]?.password);  
+           if (!isValidPassword) {
+            throw new Error("Invalid password");
+          }
+          return existingUser;
+          } else {
+            return false;
+          }
         }
       }
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 

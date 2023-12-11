@@ -14,6 +14,7 @@ export const accountSchema = z.object({
   scope: z.string().nullish(),
   id_token: z.string().nullish(),
   session_state: z.string().nullish(),
+  password: z.string().nullish(),
 })
 
 export interface CompleteAccount extends z.infer<typeof accountSchema> {
