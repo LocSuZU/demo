@@ -52,12 +52,11 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async signIn({ user, account, profile }) {
-      if(user)
-      {
+    async signIn({ user, account, profile   }) {
+      if(user) {
         return true;
-      } 
-      return false
+      }
+      return false;
     },
   },
   providers: [
@@ -78,6 +77,7 @@ export const authOptions: NextAuthOptions = {
       },
       authorize: async (credentials) => {
         const existingUser =  await db.user.findUnique({ where: { email: credentials?.email } , include : { accounts : true } });
+        
         if(!existingUser) {
           const createUser = await db.user.create({
             data: {
@@ -97,14 +97,14 @@ export const authOptions: NextAuthOptions = {
           });
           return createUser;      
         } else {
-          if(existingUser.accounts[0].provider === "credentials") {
-           const isValidPassword = await bcrypt.compare(credentials?.password, existingUser.accounts[0]?.password);  
-           if (!isValidPassword) {
-            throw new Error("Invalid password");
-          }
-          return existingUser;
+          if(existingUser.accounts[0].type === "oauth" && !existingUser.accounts[0].password) {
+            throw new Error('OAuthAccountNotLinkedError' ); 
           } else {
-            return false;
+            const isValidPassword = await bcrypt.compare(credentials?.password, existingUser.accounts[0]?.password);  
+            if (!isValidPassword) {
+              throw new Error('InvalidPassword');
+            }
+            return existingUser;
           }
         }
       }
@@ -114,6 +114,13 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    // signIn: "/auth/signin",
+    // signOut: "/auth/signout",
+    // verifyRequest: "/auth/verify-request",
+    // newUser: "/auth/new-user",
+    error: "/auth/error",
+  },
 };
 
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 export default function SignIn() {
   const { data: session, status } = useSession();
 
+
   if (status === "loading") return <div>Loading...</div>;
 
   if (session) {
