@@ -126,7 +126,7 @@ export const authOptions: NextAuthOptions = {
     // signOut: "/auth/signout",
     // verifyRequest: "/auth/verify-request",
     // newUser: "/auth/new-user",
-    error: "/auth/error",
+    // error: "/auth/error",
   },
 };
 
