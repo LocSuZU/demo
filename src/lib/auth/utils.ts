@@ -7,6 +7,7 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcrypt';
+import EmailProvider from "next-auth/providers/email"
 
 
 
@@ -68,47 +69,53 @@ export const authOptions: NextAuthOptions = {
       clientId: '1130353061279899',
       clientSecret: 'd3c37f6bcc95978a5a63b3d8ea538514',
     }),
-    CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        name: { label: "Username", type: "text", placeholder: "johndoe" },
-        password: {  label: "Password", type: "password", placeholder: "••••••••" },
-        email: { label: "Email", type: "email", placeholder: "johndoe@example.com" }
-      },
-      authorize: async (credentials) => {
-        const existingUser =  await db.user.findUnique({ where: { email: credentials?.email } , include : { accounts : true } });
-        
-        if(!existingUser) {
-          const createUser = await db.user.create({
-            data: {
-              email: credentials?.email,
-              name: credentials?.name,
-            },
-          });
-  
-          await db.account.create({
-            data: {
-              provider: "credentials",
-              type: "credentials",
-              userId: createUser.id,
-              providerAccountId: createUser.id,
-              password: await bcrypt.hash(credentials?.password, 10)
-            }
-          });
-          return createUser;      
-        } else {
-          if(existingUser.accounts[0].type === "oauth" && !existingUser.accounts[0].password) {
-            throw new Error('OAuthAccountNotLinkedError' ); 
-          } else {
-            const isValidPassword = await bcrypt.compare(credentials?.password, existingUser.accounts[0]?.password);  
-            if (!isValidPassword) {
-              throw new Error('InvalidPassword');
-            }
-            return existingUser;
-          }
-        }
-      }
+    EmailProvider({
+      server: process.env.EMAIL_SERVER,
+      from: process.env.EMAIL_FROM,
+      maxAge: 24 * 60 * 60, // time email validation link expires (24 hours)
     }),
+    // CredentialsProvider({
+    //   name: 'Credentials',
+    //   credentials: {
+    //     name: { label: "Username", type: "text", placeholder: "johndoe" },
+    //     password: {  label: "Password", type: "password", placeholder: "••••••••" },
+    //     email: { label: "Email", type: "email", placeholder: "johndoe@example.com" }
+    //   },
+    //   authorize: async (credentials) => {
+    //     const existingUser =  await db.user.findUnique({ where: { email: credentials?.email } , include : { accounts : true } });
+        
+    //     if(!existingUser) {
+    //       const createUser = await db.user.create({
+    //         data: {
+    //           email: credentials?.email,
+    //           name: credentials?.name,
+    //         },
+    //       });
+  
+    //       await db.account.create({
+    //         data: {
+    //           provider: "credentials",
+    //           type: "credentials",
+    //           userId: createUser.id,
+    //           providerAccountId: createUser.id,
+    //           password: await bcrypt.hash(credentials?.password, 10)
+    //         }
+    //       });
+    //       return createUser;      
+    //     } else {
+    //       console.log(222,  existingUser.accounts[0].password)
+    //       if(existingUser.accounts[0].type === "oauth" || !existingUser.accounts[0].password) {
+    //         throw new Error('OAuthAccountNotLinkedError' ); 
+    //       } else {
+    //         const isValidPassword = await bcrypt.compare(credentials?.password, existingUser.accounts[0]?.password);  
+    //         if (!isValidPassword) {
+    //           throw new Error('InvalidPassword');
+    //         }
+    //         return existingUser;
+    //       }
+    //     }
+    //   }
+    // }),
   ],
   session: {
     strategy: "jwt",
