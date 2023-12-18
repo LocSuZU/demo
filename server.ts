@@ -28,7 +28,7 @@ nextApp.prepare().then(() => {
 
     io.on('connection', (socket) => {
         console.log('connection');
-        socket.emit('status', 'Hello from Socket.io' + socket.id);
+        socket.emit('status', 'Hello from Socket.io');
 
         socket.on('disconnect', () => {
             console.log('client disconnected');
