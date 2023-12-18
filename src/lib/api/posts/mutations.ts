@@ -6,7 +6,13 @@ import {
   UpdatePostParams, 
   updatePostSchema,
   insertPostSchema, 
-  postIdSchema 
+  postIdSchema,
+  NewLikeParams,
+  insertLikeSchema,
+  LikeId,
+  UpdateLikeParams,
+  likeIdSchema,
+  updateLikeSchema
 } from "@/lib/db/schema/posts";
 import { getUserAuth } from "@/lib/auth/utils";
 import { PrismaClient } from "@prisma/client";
@@ -62,18 +68,6 @@ export const createPost = async (post: NewPostParams) => {
   await prisma.post.create({data : newPost})
 };
 
-// export const createPost = async (post: NewPostParams) => {
-//   const { session } = await getUserAuth();
-//   const newPost = insertPostSchema.parse({ ...post, userId: session?.user.id! });
-//   try {
-//     const p = await db.post.create({ data: newPost });
-//     return { post: p };
-//   } catch (err) {
-//     const message = (err as Error).message ?? "Error, please try again";
-//     console.error(message);
-//     return { error: message };
-//   }
-// };
 
 export const updatePost = async (id: PostId, post: UpdatePostParams) => {
   const { session } = await getUserAuth();
@@ -90,12 +84,38 @@ export const updatePost = async (id: PostId, post: UpdatePostParams) => {
 };
 
 export const deletePost = async (id: PostId) => {
-  const { session } = await getUserAuth();
   const { id: postId } = postIdSchema.parse({ id });
 
   try {
     const p = await db.post.delete({ where: { id: postId }})
     return { post: p };
+  } catch (err) {
+    const message = (err as Error).message ?? "Error, please try again";
+    console.error(message);
+    return { error: message };
+  }
+};
+
+export const likesPost =  async (like :NewLikeParams ) => {
+  const { session } = await getUserAuth();
+  const newLike = insertLikeSchema.parse({...like, userId: session?.user.id! });
+  try {
+    const l = await db.like.create({ data: newLike });
+    return { like: l };
+  } catch (err) {
+    const message = (err as Error).message ?? "Error, please try again";
+    console.error(message);
+    return { error: message };
+  }
+};
+
+export const dislikePost =  async (id: LikeId, like: UpdateLikeParams) => {
+  const { session } = await getUserAuth();
+  const { id: LikeId } = likeIdSchema.parse({ id });
+  const newLike = updateLikeSchema.parse({...like, userId: session?.user.id! });
+  try {
+    const l = await db.like.update( { where : { id: LikeId }, data: newLike });
+    return { like: l };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
     console.error(message);

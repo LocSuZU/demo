@@ -5,6 +5,8 @@ export const likeSchema = z.object({
   id: z.string(),
   postId: z.number().int(),
   userId: z.string(),
+  liked: z.boolean(),
+  disliked: z.boolean(),
 })
 
 export interface CompleteLike extends z.infer<typeof likeSchema> {

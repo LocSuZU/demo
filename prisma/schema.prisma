@@ -118,11 +118,13 @@ model Follo {
 }
 
 model Like {
-  id     String @id @default(cuid())
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId Int
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       String  @id @default(cuid())
+  post     Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   Int
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  liked    Boolean
+  disliked Boolean
 
   @@index([userId])
 }
