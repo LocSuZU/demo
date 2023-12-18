@@ -5,11 +5,11 @@ import PostModal from "./PostModal";
 import CommentModal from "./CommentModal";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useToast } from "../ui/use-toast";
-
+import io from 'socket.io-client'
 
 
 export default function PostList({ posts }: { posts: CompletePost[] }) {
@@ -33,8 +33,27 @@ export default function PostList({ posts }: { posts: CompletePost[] }) {
     </ul>
   );
 }
-
+let socket;
 const Post = ({ post }: { post: CompletePost }) => {
+  useEffect(() => {
+    socketInitializer();
+  }, []);
+
+  const socketInitializer = async () => {
+    // We just call it because we don't need anything else out of it
+    await fetch("/api/socket");
+
+    socket = io();
+
+    socket.on("newIncomingMessage", (msg) => {
+      // setMessages((currentMsg) => [
+      //   ...currentMsg,
+      //   { author: msg.author, message: msg.message },
+      // ]);
+      console.log(msg);
+    });
+  };
+
   const session = useSession();
   const { toast } = useToast();
   const router = useRouter();
