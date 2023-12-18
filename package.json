@@ -7,7 +7,7 @@
     "build": "npx prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "vercel-build": "npx prisma generate && yarn build && yarn run dev"
+    "vercel-build": "npx prisma generate && yarn build "
   },
   "dependencies": {
     "@auth/core": "^0.18.4",
