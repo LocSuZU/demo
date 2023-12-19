@@ -7,7 +7,7 @@ import { getComments } from "@/lib/api/comments/queries";
 export const insertCommentSchema = commentSchema.omit({ id: true });
 
 export const insertCommentParams = commentSchema.extend({
-  postId: z.coerce.string()
+  postId: z.coerce.number()
 }).omit({ 
   id: true,
   userId: true
@@ -16,7 +16,7 @@ export const insertCommentParams = commentSchema.extend({
 export const updateCommentSchema = commentSchema;
 
 export const updateCommentParams = updateCommentSchema.extend({
-  postId: z.coerce.string()
+  postId: z.coerce.number()
 }).omit({ 
   userId: true
 });

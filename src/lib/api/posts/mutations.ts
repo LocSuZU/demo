@@ -14,6 +14,7 @@ import {
   likeIdSchema,
   updateLikeSchema
 } from "@/lib/db/schema/posts";
+import { CommentId, insertCommentSchema , NewCommentParams } from "@/lib/db/schema/comments";
 import { getUserAuth } from "@/lib/auth/utils";
 import { PrismaClient } from "@prisma/client";
 import { resend } from "@/lib/email/index";
@@ -172,6 +173,25 @@ export const dislikePost =  async (id: LikeId, like: UpdateLikeParams) => {
     return { error: message };
   }
 };
+
+export const createComment = async (comment: NewCommentParams , parentId?: CommentId ) => {
+  const { session } = await getUserAuth();
+  const newcomment = insertCommentSchema.parse({...comment, userId: session?.user.id! , parentId });
+  try {
+    const c = await db.comment.create({ data: newcomment });
+    const getComment = await db.comment.findUnique({ where: { id: c.id }, include: { post: true, user: true } });
+    const totalComment = getComment?.post?.totalComment! + 1;
+    const updatePost = await db.post.update({ where: { id: getComment?.post?.id! }, data: { totalComment: totalComment } });
+    console.log(444, updatePost )
+    io.emit('add-comment', updatePost);
+    return { comment: getComment };
+  } catch (err) {
+    const message = (err as Error).message ?? "Error, please try again";
+    console.error(message);
+    return { error: message };
+  }
+}
+
 
 
 

@@ -92,6 +92,7 @@ model Post {
   Share   Share[]
   totalLike Int  @default(0)
   totalDislike Int @default(0)
+  totalComment Int @default(0)
 
   @@index([userId])
 }
@@ -137,6 +138,7 @@ model Comment {
   content String?
   userId  String
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId String?
 
   @@index([userId])
 }

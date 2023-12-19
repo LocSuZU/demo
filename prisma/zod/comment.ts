@@ -6,6 +6,7 @@ export const commentSchema = z.object({
   postId: z.number().int(),
   content: z.string().nullish(),
   userId: z.string(),
+  parentId: z.string().nullish(),
 })
 
 export interface CompleteComment extends z.infer<typeof commentSchema> {

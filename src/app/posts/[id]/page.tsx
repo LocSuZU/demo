@@ -6,6 +6,9 @@ import { CompletePost } from "@/lib/db/schema/posts";
 import { trpc } from "@/lib/trpc/client";
 import io from 'socket.io-client'
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { CommentId } from "@/lib/db/schema/comments";
+
 
 export default function PostDetail({ params, post }: { params: { id: Number }, post: CompletePost }) {
   const id = Number(params.id);
@@ -15,11 +18,14 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   });
   const [likeCount, setLikeCount] = useState(null);
   const [dislikeCount, setDislikeCount] = useState(null);
-  const [comments, setComments] = useState(null);
+  const [comments, setComments] = React.useState<string | null>(null);
+  const [reply, setReply] = React.useState<string | null>(null);
 
   const session = useSession();
   const router = useRouter();
   const utils = trpc.useContext();
+  const { toast } = useToast();
+
 
   const socket = io('http://localhost:3000', {
     path: '/socket.io'
@@ -41,6 +47,13 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
         setLikeCount(data.likesCount)
         setDislikeCount(data.dislikesCount)
       }
+    });
+    socket.on('add-comment', (data) => {
+      console.log(444, data);
+      // if (data) {
+      //   setLikeCount(data.likesCount)
+      //   setDislikeCount(data.dislikesCount)
+      // }
     });
 
   }, [p]);
@@ -88,10 +101,67 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
     })
   }
 
+  const { mutate: CreateComment } = trpc.comments.createComment.useMutation({
+    onSuccess: async (data) => {
+      await utils.posts.getPosts.invalidate();
+      router.refresh();
+      toast({
+        title: 'Success',
+        description: `Post created comment!`,
+        variant: "default",
+      });
+    },
+  });
 
-  const handleComment = (event: React.MouseEvent<HTMLButtonElement>) => {
-
+  const handleSubmitComment = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const comment = {
+      content: comments,
+      userId: session.data?.user?.id,
+      postId: p?.posts?.id || 0,
+    }
+    CreateComment(comment);
   }
+
+  const handleComment = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const comment = event.target.value;
+    setComments(comment);
+  }
+
+  const handleReply = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const reply = e.target.value;
+    setReply(reply);
+  };
+
+  const handleSubmitReply = (e: React.MouseEvent<HTMLInputElement>, commentId: CommentId) => {
+    const replyComment = {
+      content: reply,
+      userId: session.data?.user?.id,
+      postId: p?.posts?.id || 0,
+      commentId: commentId,
+    }
+    CreateComment(replyComment, commentId);
+  }
+
+
+  function renderComments(comments) {
+    return comments.map((comment) => (
+      <div className="comment" key={comment.id}>
+        <div className="author">{comment.author}</div>
+        <div className="content">{comment.content}</div>
+        <div>
+          <input type="text" placeholder="Write a reply..." onChange={(e) => handleReply(e)} />
+          <button onClick={(e) => handleSubmitReply(e, comment.id)}>Reply</button>
+        </div>
+        {comment.replies && (
+          <ul className="replies">
+            {renderComments(comment.replies)}
+          </ul>
+        )}
+      </div>
+    ));
+  }
+
+
 
   return (
     <div>
@@ -114,17 +184,15 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
               <Button onClick={(event) => handleLike(event)}>Like</Button>
               <Button onClick={(event) => handleDisLike(event)}>DisLike</Button>
             </div>
-            <ul>
-              {comments?.map((comment) => (
-                <li key={comment.id}>{comment.content}</li>
-              ))}
-            </ul>
+            <div>
+              {p?.posts?.Comment && renderComments(p.posts.Comment)}
+            </div>
             <input
               type="text"
               placeholder="Nhập bình luận của bạn"
-            // onInput={(e) => setComments(e.target.value)}
+              onChange={(e) => handleComment(e)}
             />
-            <Button onClick={(event) => handleComment(event)}>Gửi</Button>
+            <Button onClick={(event) => handleSubmitComment(event)}>Gửi</Button>
           </>
         )
       }
