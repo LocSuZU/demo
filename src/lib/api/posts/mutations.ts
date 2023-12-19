@@ -18,6 +18,7 @@ import { getUserAuth } from "@/lib/auth/utils";
 import { PrismaClient } from "@prisma/client";
 import { resend } from "@/lib/email/index";
 import { EmailContent } from "@/components/emails/EmailContent";
+const io = global.io;
 
 
 export const createPost = async (post: NewPostParams) => {
@@ -98,24 +99,73 @@ export const deletePost = async (id: PostId) => {
 
 export const likesPost =  async (like :NewLikeParams ) => {
   const { session } = await getUserAuth();
-  const newLike = insertLikeSchema.parse({...like, userId: session?.user.id! });
-  try {
-    const l = await db.like.create({ data: newLike });
-    return { like: l };
-  } catch (err) {
-    const message = (err as Error).message ?? "Error, please try again";
-    console.error(message);
-    return { error: message };
-  }
+  const existingLike = await db.like.findFirst({ where: { postId : like.postId, userId: session?.user.id! } });
+
+  if(!existingLike) {
+    const newLike = insertLikeSchema.parse({...like, userId: session?.user.id! });
+    try {
+      const l = await db.like.create({ data: newLike });
+      const getLike = await db.like.findUnique({ where: { id: l.id }, include: { post: true, user: true } });
+      const totalLike = getLike?.post?.totalLike! + 1;
+      const totalDislike = getLike?.post?.totalDislike - 1 < 0 ? 0 : getLike?.post?.totalDislike - 1;
+      const updatePost = await db.post.update({ where: { id: getLike?.post?.id! }, data: { totalLike: totalLike, totalDislike: totalDislike } });
+      io.emit('add-like', updatePost);
+      return { like: getLike };
+    } catch (err) {
+      const message = (err as Error).message ?? "Error, please try again";
+      console.error(message);
+      return { error: message };
+    }
+  } else {
+    if(existingLike.liked) {
+      return false;
+    } else if(existingLike.disliked) {
+      try {
+        const l = await db.like.update({ where: { id: existingLike.id }, data: {
+          postId: existingLike.postId,
+          liked: true,
+          userId: session?.user.id!,
+          disliked : false
+        }});    
+        const getPost = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
+        const totalLike = getPost?.totalLike! + 1;
+        const totalDislike = getPost?.totalDislike! - 1 < 0 ? 0 : getPost?.totalDislike! - 1;
+        const updatePost = await db.post.update({ where: { id: like.postId }, data: { totalLike: totalLike, totalDislike: totalDislike } });
+        const getLike = await db.like.findUnique({ where: { id: l.id }, include: { post: true, user: true } });
+        io.emit('add-like', updatePost);
+        return { like: getLike };
+      } catch (err) {
+        const message = (err as Error).message ?? "Error, please try again";
+        console.error(message);
+        return { error: message };
+      }
+    } else {
+      return;
+    }
+  } 
 };
 
 export const dislikePost =  async (id: LikeId, like: UpdateLikeParams) => {
   const { session } = await getUserAuth();
   const { id: LikeId } = likeIdSchema.parse({ id });
-  const newLike = updateLikeSchema.parse({...like, userId: session?.user.id! });
   try {
-    const l = await db.like.update( { where : { id: LikeId }, data: newLike });
-    return { like: l };
+    const existingLike = await db.like.findUnique({ where: { id: LikeId } });
+    if (existingLike && existingLike.disliked) {
+      return ;
+    }
+    const l = await db.like.update({ where: { id: LikeId }, data: {
+      postId: like.postId,
+      liked: false,
+      userId: session?.user.id!,
+      disliked : true,
+    } });
+    const getPost = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
+    const totalLike = getPost?.totalLike! - 1 < 0 ? 0 : getPost?.totalLike! - 1;
+    const totalDislike = getPost?.totalDislike! + 1;
+    const updatePost = await db.post.update({ where: { id: like.postId }, data: { totalLike: totalLike, totalDislike: totalDislike } });
+    const getLike = await db.like.findUnique({ where: { id: l.id }, include: { post: true, user: true } });
+    io.emit('dis-like', updatePost);
+    return { like: getLike };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
     console.error(message);

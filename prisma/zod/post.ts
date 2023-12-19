@@ -8,6 +8,8 @@ export const postSchema = z.object({
   content: z.string().nullish(),
   image: z.string().nullish(),
   userId: z.string(),
+  totalLike: z.number().int(),
+  totalDislike: z.number().int(),
 })
 
 export interface CompletePost extends z.infer<typeof postSchema> {

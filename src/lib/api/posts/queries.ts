@@ -9,12 +9,17 @@ export const getPosts = async () => {
   return { posts: p };
 };
 
+ 
+
 export const getPostById = async (id: PostId) => {
   const { session } = await getUserAuth();
   const { id: postId } = postIdSchema.parse({ id });
   const p = await db.post.findFirst({
-    where: { id: postId, userId: session?.user.id!}});
-  return { posts: p };
+    where: { id: postId},
+    include : { user: true , likes : true, Share : true , Comment : true}
+  });
+
+  return { posts: p};
 };
 
 

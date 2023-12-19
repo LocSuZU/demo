@@ -90,6 +90,8 @@ model Post {
   likes   Like[]
   Comment Comment[]
   Share   Share[]
+  totalLike Int  @default(0)
+  totalDislike Int @default(0)
 
   @@index([userId])
 }
@@ -125,7 +127,6 @@ model Like {
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   liked    Boolean
   disliked Boolean
-
   @@index([userId])
 }
 

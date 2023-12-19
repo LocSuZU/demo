@@ -39,7 +39,6 @@ export const postsRouter = router({
   dislikedPost: publicProcedure
     .input(updateLikePostsSchema)
     .mutation(async ({ input }) => {
-      console.log(333, input)
       return dislikePost(input.id, input);
     }),
 });
