@@ -27,7 +27,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   const { toast } = useToast();
 
 
-  const socket = io('http://localhost:3000', {
+  const socket = io('https://demo-98.vercel.app', {
     path: '/socket.io'
   });
 
