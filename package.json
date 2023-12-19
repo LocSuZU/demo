@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nodemon server.js",
-    "build": "next build",
+    "build": "npx prisma generate && next build",
     "start": "nodemon server.js & set NODE_ENV=production ",
     "start:ws": "nodemon server.js",
     "start:all": "run-p start start:ws",
