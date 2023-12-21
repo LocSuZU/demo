@@ -207,8 +207,11 @@ export const createCommentReply = async (comment: NewCommentParams , parentId?: 
   const { session } = await getUserAuth();
   const newCommentReply = insertCommentSchema.parse({ ...comment, parentId: parentId , userId : session?.user.id! });
   try {
-    const comment = await db.comment.create({ data: newCommentReply });
-    //  await pusherServer.trigger(updatePost.id.toString(), "client:like", getPostResult);
+    const c = await db.comment.create({ data: newCommentReply });
+    const p = await db.post.findUnique({ where: { id:  c.postId  } , 
+        include: { user: true } 
+      });
+    await pusherServer.trigger(p?.id.toString(), "client:reply", c);
     return { comment: comment };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";

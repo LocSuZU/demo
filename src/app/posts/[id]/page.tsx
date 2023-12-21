@@ -22,7 +22,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   const id = Number(params.id);
   const { data: p } = trpc.posts.getPostById.useQuery({ id }, {
     initialData: { posts: post },
-    refetchOnMount: false,
+    refetchOnMount: true,
   });
   const [likeCount, setLikeCount] = useState<Number>(0);
   const [dislikeCount, setDislikeCount] = useState<Number>(0);
@@ -35,6 +35,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   const router = useRouter();
   const utils = trpc.useContext();
   const { toast } = useToast();
+
   useEffect(() => {
     if (p?.posts) {
       setLikeCount(p?.posts?.totalLike)
@@ -59,11 +60,30 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
 
       chanel.bind('client:comment', (data) => {
         if (data) {
-          if (comments !== null) {
-            setComments([...comments, data]);
-          } else {
-            setComments([data]);
-          }
+          setComments((comments) => [...comments, data]);
+        }
+      });
+
+      chanel.bind('client:reply', (data) => {
+        if (data) {
+          setComments((comments) =>
+            comments?.map((comment) => {
+              if (comment.id === data.parentId) {
+                if (comment.replies) {
+                  return {
+                    ...comment,
+                    replies: [...comment.replies, data],
+                  };
+                } else {
+                  return {
+                    ...comment,
+                    replies: [data],
+                  };
+                }
+              }
+              return comment;
+            })
+          );
         }
       });
 
