@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import NextAuthProvider from "@/lib/auth/Provider";
 import Navbar from "@/components/Navbar";
 import TrpcProvider from "@/lib/trpc/Provider";
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,17 +23,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-<NextAuthProvider>
-<TrpcProvider><main className="max-w-3xl mx-auto md:p-0 p-6">
-<Navbar />
-{children}
-</main></TrpcProvider>
-</NextAuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <NextAuthProvider>
+            <TrpcProvider><main className="max-w-3xl mx-auto md:p-0 p-6">
+              <Navbar />
+              {children}
+            </main></TrpcProvider>
+          </NextAuthProvider>
 
-<Toaster />
-</ThemeProvider>
-</body>
+          <Toaster />
+        </ThemeProvider>
+      </body>
+      <head>
+        <Script src="https://js.pusher.com/8.2.0/pusher.min.js" strategy="lazyOnload" />
+
+      </head>
     </html>
   )
 }

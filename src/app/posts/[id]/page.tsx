@@ -2,12 +2,15 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { CompletePost } from "@/lib/db/schema/posts";
+import { CompletePost, Post } from "@/lib/db/schema/posts";
 import { trpc } from "@/lib/trpc/client";
 import io from 'socket.io-client'
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { CommentId } from "@/lib/db/schema/comments";
+import { pusherClient } from "@/lib/pusher";
+import { pusherServer } from "@/lib/pusher";
+
 
 
 export default function PostDetail({ params, post }: { params: { id: Number }, post: CompletePost }) {
@@ -16,47 +19,74 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
     initialData: { posts: post },
     refetchOnMount: false,
   });
-  const [likeCount, setLikeCount] = useState(null);
-  const [dislikeCount, setDislikeCount] = useState(null);
+  const [likeCount, setLikeCount] = useState<Number>(0);
+  const [dislikeCount, setDislikeCount] = useState<Number>(0);
   const [comments, setComments] = React.useState<string | null>(null);
   const [reply, setReply] = React.useState<string | null>(null);
+  const [user, setUser] = useState<string | null>(null);
 
   const session = useSession();
   const router = useRouter();
   const utils = trpc.useContext();
   const { toast } = useToast();
 
-
-  const socket = io('https://demo-98.vercel.app', {
-    path: '/socket.io'
-  });
-
   useEffect(() => {
     if (p?.posts) {
       setLikeCount(p?.posts?.totalLike)
       setDislikeCount(p?.posts?.totalDislike)
-    }
-    socket.on('add-like', (data) => {
-      if (data) {
-        setLikeCount(data.likesCount)
-        setDislikeCount(data.dislikesCount)
-      }
-    });
-    socket.on('dis-like', (data) => {
-      if (data) {
-        setLikeCount(data.likesCount)
-        setDislikeCount(data.dislikesCount)
-      }
-    });
-    socket.on('add-comment', (data) => {
-      console.log(444, data);
-      // if (data) {
-      //   setLikeCount(data.likesCount)
-      //   setDislikeCount(data.dislikesCount)
-      // }
-    });
+      const chanel = pusherClient.subscribe(p?.posts?.id?.toString());
+      chanel.bind('client:like', (data) => {
+        if (data) {
+          setLikeCount(data.totalLike)
+          setDislikeCount(data.totalDislike)
+          setUser(data?.session?.user.name == session?.data?.user.name ? null : data?.session?.user.name || data?.session?.user.email)
+        }
+      });
 
+      chanel.bind('client:dislike', (data) => {
+        if (data) {
+          setLikeCount(data.totalLike)
+          setDislikeCount(data.totalDislike)
+          setUser(data?.session?.user.name == session?.data?.user.name ? null : data?.session?.user.name || data?.session?.user.email)
+        }
+      });
+
+      return () => {
+        pusherClient.unsubscribe('posts');
+      }
+    }
   }, [p]);
+
+  // const socket = io('http://localhost:3000', {
+  //   path: '/socket.io'
+  // });
+
+  // useEffect(() => {
+  //   if (p?.posts) {
+  //     setLikeCount(p?.posts?.totalLike)
+  //     setDislikeCount(p?.posts?.totalDislike)
+  //   }
+  //   socket.on('add-like', (data) => {
+  //     if (data) {
+  //       setLikeCount(data.likesCount)
+  //       setDislikeCount(data.dislikesCount)
+  //     }
+  //   });
+  //   socket.on('dis-like', (data) => {
+  //     if (data) {
+  //       setLikeCount(data.likesCount)
+  //       setDislikeCount(data.dislikesCount)
+  //     }
+  //   });
+  //   socket.on('add-comment', (data) => {
+  //     console.log(444, data);
+  //     // if (data) {
+  //     //   setLikeCount(data.likesCount)
+  //     //   setDislikeCount(data.dislikesCount)
+  //     // }
+  //   });
+
+  // }, [p]);
 
 
   const onSuccess = async (action: "like" | "dislike") => {
@@ -67,7 +97,6 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   const { mutate: LikePost } =
     trpc.posts.likesPost.useMutation({
       onSuccess: (data) => {
-        socket.emit('like', data);
         onSuccess("like");
       },
     });
@@ -75,7 +104,6 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   const { mutate: DisLikePost } =
     trpc.posts.dislikedPost.useMutation({
       onSuccess: (data) => {
-        socket.emit('dis-like', data);
         onSuccess("dislike");
       },
     });
@@ -92,13 +120,21 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   const handleDisLike = (event: React.MouseEvent<HTMLButtonElement>) => {
     const getLikeOrDisLike = p?.posts?.likes?.find((like) => like.userId === session.data?.user?.id && p?.posts?.id === like.postId);
 
-    //@ts-ignore
-    DisLikePost({
-      postId: p?.posts?.id as number,
-      liked: false,
-      disliked: true,
-      id: getLikeOrDisLike?.id as string
-    })
+    if (getLikeOrDisLike) {
+      DisLikePost({
+        postId: p?.posts?.id as number,
+        liked: false,
+        disliked: true,
+        id: getLikeOrDisLike?.id as string
+      })
+    } else {
+      LikePost({
+        postId: p?.posts?.id as number,
+        liked: false,
+        disliked: true,
+        userId: "",
+      })
+    }
   }
 
   const { mutate: CreateComment } = trpc.comments.createComment.useMutation({
@@ -165,6 +201,13 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
 
   return (
     <div>
+      {
+        user && (
+          <div>
+            <p>{user} đã like/dislike bài viết của bạn</p>
+          </div>
+        )
+      }
       {
         p?.posts && (
           <>

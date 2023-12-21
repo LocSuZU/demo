@@ -15,7 +15,7 @@ nextApp.prepare().then(() => {
     cors: {
       origin: '*',
     },
-    path: 'https://demo-98.vercel.app/socket.io',
+    path: '/socket.io',
     allowEIO3: true,
     transports: ['websocket', 'polling'],
   });

@@ -45,7 +45,6 @@ export const postsRouter = router({
   createComment: publicProcedure
     .input(insertCommentParams)
     .mutation(async ({ input }) => {
-      console.log(555,input)
       return createComment(input);
     }),
 });
