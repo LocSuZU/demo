@@ -119,7 +119,7 @@ export const likesPost =  async (like :NewLikeParams ) => {
       return { error: message };
     }
   } else {
-    if(existingLike.liked && !existingLike.disliked) {
+    if(existingLike && existingLike.liked && !existingLike.disliked) {
       return false;
     } else if(existingLike.disliked) {
       try {
@@ -149,45 +149,67 @@ export const likesPost =  async (like :NewLikeParams ) => {
   } 
 };
 
-export const dislikePost =  async (id: LikeId, like: UpdateLikeParams) => {
+export const dislikePost =  async (id: PostId, like: UpdateLikeParams) => {
   const { session } = await getUserAuth();
-  const { id: LikeId } = likeIdSchema.parse({ id });
   try {
-    const existingLike = await db.like.findUnique({ where: { id: LikeId } });
-    if (existingLike && existingLike.disliked) {
-      return ;
-    }
-    const l = await db.like.update({ where: { id: LikeId }, data: {
-      postId: like.postId,
-      liked: false,
-      userId: session?.user.id!,
-      disliked : true,
-    } });
-    const getPost = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
-    const totalLike = getPost?.totalLike! - 1 < 0 ? 0 : getPost?.totalLike! - 1;
-    const totalDislike = getPost?.totalDislike! + 1;
-    const updatePost = await db.post.update({ where: { id: like.postId }, data: { totalLike: totalLike, totalDislike: totalDislike } });
-    const getLike = await db.like.findUnique({ where: { id: l.id , userId : session?.user.id! }, include: { post: true, user: true } });
-    const getPostAfterUpdate = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
-    const getPostResult = {...getPostAfterUpdate, session : session}
-    await pusherServer.trigger(updatePost.id.toString(), "client:dislike", getPostResult);
-    return { like: getLike };
+    const existingLike = await db.like.findFirst({ where: { postId : like.postId, userId: session?.user.id! } });
+    if(!existingLike) {
+      try {
+        const l = await db.like.create({ data: {
+          postId: like.postId,
+          liked: false,
+          userId: session?.user.id!,
+          disliked : true,
+        } });
+        const getPost = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
+        const totalLike = getPost?.totalLike! - 1 < 0 ? 0 : getPost?.totalLike! - 1;
+        const totalDislike = getPost?.totalDislike! + 1;
+        const updatePost = await db.post.update({ where: { id: like.postId }, data: { totalLike: totalLike, totalDislike: totalDislike } });
+        const getLike = await db.like.findUnique({ where: { id: l.id , userId : session?.user.id! }, include: { post: true, user: true } });
+        const getPostAfterUpdate = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
+        const getPostResult = {...getPostAfterUpdate, session : session}
+        await pusherServer.trigger(updatePost.id.toString(), "client:dislike", getPostResult);
+        return { like: getLike };
+      } catch (err) {
+        const message = (err as Error).message ?? "Error, please try again";
+        console.error(message);
+        return { error: message };
+      }
+    } else {
+      if (existingLike && !existingLike.liked && existingLike.disliked) {
+        return ;
+      }
+      const l = await db.like.update({ where: { id: existingLike?.id }, data: {
+        postId: like.postId,
+        liked: false,
+        userId: session?.user.id!,
+        disliked : true,
+      } });
+      const getPost = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
+      const totalLike = getPost?.totalLike! - 1 < 0 ? 0 : getPost?.totalLike! - 1;
+      const totalDislike = getPost?.totalDislike! + 1;
+      const updatePost = await db.post.update({ where: { id: like.postId }, data: { totalLike: totalLike, totalDislike: totalDislike } });
+      const getLike = await db.like.findUnique({ where: { id: l.id , userId : session?.user.id! }, include: { post: true, user: true } });
+      const getPostAfterUpdate = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
+      const getPostResult = {...getPostAfterUpdate, session : session}
+      await pusherServer.trigger(updatePost.id.toString(), "client:dislike", getPostResult);
+      return { like: getLike };
+    } 
   } catch (err) {
-    const message = (err as Error).message ?? "Error, please try again";
-    console.error(message);
-    return { error: message };
-  }
+      const message = (err as Error).message ?? "Error, please try again";
+      console.error(message);
+      return { error: message };
+    }
 };
 
-export const createComment = async (comment: NewCommentParams , parentId?: CommentId ) => {
+
+export const createCommentReply = async (comment: NewCommentParams , parentId?: CommentId ) => {
   const { session } = await getUserAuth();
-  const newcomment = insertCommentSchema.parse({...comment, userId: session?.user.id! , parentId });
+  const newCommentReply = insertCommentSchema.parse({ ...comment, parentId: parentId , userId : session?.user.id! });
   try {
-    const c = await db.comment.create({ data: newcomment });
-    const getComment = await db.comment.findUnique({ where: { id: c.id }, include: { post: true, user: true } });
-    const totalComment = getComment?.post?.totalComment! + 1;
-    const updatePost = await db.post.update({ where: { id: getComment?.post?.id! }, data: { totalComment: totalComment } });
-    return { comment: getComment };
+    const comment = await db.comment.create({ data: newCommentReply });
+    //  await pusherServer.trigger(updatePost.id.toString(), "client:like", getPostResult);
+    return { comment: comment };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
     console.error(message);

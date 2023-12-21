@@ -22,6 +22,7 @@ export const updateCommentParams = updateCommentSchema.extend({
 });
 
 export const commentIdSchema = updateCommentSchema.pick({ id: true });
+export const commentAndPostIdParams = commentIdSchema.pick({ postId: true , id: true });
 
 // Types for comments - used to type API request params and within Components
 export type Comment = z.infer<typeof updateCommentSchema>;

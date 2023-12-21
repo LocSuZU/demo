@@ -34,7 +34,6 @@ export const insertLikePostsSchema = likeSchema.extend({}).omit({
 
 export const updateLikeSchema = likeSchema;
 export const updateLikePostsSchema = updateLikeSchema.extend({}).omit({ 
-  userId: true
 });
 export const likeIdSchema = updateLikeSchema.pick({ id: true });
 

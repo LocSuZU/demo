@@ -8,7 +8,7 @@ import {
   updateLikePostsSchema
 } from "@/lib/db/schema/posts";
 import { insertCommentParams } from "@/lib/db/schema/comments";
-import { createPost, deletePost, updatePost , likesPost , dislikePost , createComment } from "@/lib/api/posts/mutations";
+import { createPost, deletePost, updatePost , likesPost , dislikePost ,  createCommentReply } from "@/lib/api/posts/mutations";
 
 export const postsRouter = router({
   getPosts: publicProcedure.query(async () => {
@@ -40,11 +40,11 @@ export const postsRouter = router({
   dislikedPost: publicProcedure
     .input(updateLikePostsSchema)
     .mutation(async ({ input }) => {
-      return dislikePost(input.id, input);
+      return dislikePost(input.postId, input);
     }),
-  createComment: publicProcedure
+  createCommentReply: publicProcedure
     .input(insertCommentParams)
     .mutation(async ({ input }) => {
-      return createComment(input);
+      return createCommentReply(input , input.parentId!);
     }),
 });

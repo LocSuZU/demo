@@ -1,9 +1,10 @@
-import { getCommentById, getComments } from "@/lib/api/comments/queries";
+import { getCommentById, getComments  } from "@/lib/api/comments/queries";
 import { publicProcedure, router } from "@/lib/server/trpc";
 import {
   commentIdSchema,
   insertCommentParams,
   updateCommentParams,
+  commentAndPostIdParams,
 } from "@/lib/db/schema/comments";
 import { createComment, deleteComment, updateComment } from "@/lib/api/comments/mutations";
 

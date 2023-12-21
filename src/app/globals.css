@@ -79,3 +79,24 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+.comment {
+  margin-bottom: 1em;
+  padding: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.author {
+  font-weight: bold;
+}
+
+.content {
+  margin-top: 0.5em;
+}
+
+.replies {
+  margin-top: 1em;
+  padding-left: 1em;
+  list-style-type: none;
+}

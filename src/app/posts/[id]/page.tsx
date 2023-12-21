@@ -7,11 +7,16 @@ import { trpc } from "@/lib/trpc/client";
 import io from 'socket.io-client'
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { CommentId } from "@/lib/db/schema/comments";
+import { CommentId, NewCommentParams } from "@/lib/db/schema/comments";
 import { pusherClient } from "@/lib/pusher";
-import { pusherServer } from "@/lib/pusher";
 
 
+type Comment = {
+  id: string;
+  author: string;
+  content: string;
+  replies?: Comment[];
+};
 
 export default function PostDetail({ params, post }: { params: { id: Number }, post: CompletePost }) {
   const id = Number(params.id);
@@ -21,7 +26,8 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   });
   const [likeCount, setLikeCount] = useState<Number>(0);
   const [dislikeCount, setDislikeCount] = useState<Number>(0);
-  const [comments, setComments] = React.useState<string | null>(null);
+  const [comments, setComments] = React.useState<Comment[] | null>(null);
+  const [comment, setComment] = React.useState<string | null>(null);
   const [reply, setReply] = React.useState<string | null>(null);
   const [user, setUser] = useState<string | null>(null);
 
@@ -29,11 +35,11 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   const router = useRouter();
   const utils = trpc.useContext();
   const { toast } = useToast();
-
   useEffect(() => {
     if (p?.posts) {
       setLikeCount(p?.posts?.totalLike)
       setDislikeCount(p?.posts?.totalDislike)
+      setComments(p?.posts?.comments)
       const chanel = pusherClient.subscribe(p?.posts?.id?.toString());
       chanel.bind('client:like', (data) => {
         if (data) {
@@ -51,43 +57,21 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
         }
       });
 
+      chanel.bind('client:comment', (data) => {
+        if (data) {
+          if (comments !== null) {
+            setComments([...comments, data]);
+          } else {
+            setComments([data]);
+          }
+        }
+      });
+
       return () => {
         pusherClient.unsubscribe('posts');
       }
     }
   }, [p]);
-
-  // const socket = io('http://localhost:3000', {
-  //   path: '/socket.io'
-  // });
-
-  // useEffect(() => {
-  //   if (p?.posts) {
-  //     setLikeCount(p?.posts?.totalLike)
-  //     setDislikeCount(p?.posts?.totalDislike)
-  //   }
-  //   socket.on('add-like', (data) => {
-  //     if (data) {
-  //       setLikeCount(data.likesCount)
-  //       setDislikeCount(data.dislikesCount)
-  //     }
-  //   });
-  //   socket.on('dis-like', (data) => {
-  //     if (data) {
-  //       setLikeCount(data.likesCount)
-  //       setDislikeCount(data.dislikesCount)
-  //     }
-  //   });
-  //   socket.on('add-comment', (data) => {
-  //     console.log(444, data);
-  //     // if (data) {
-  //     //   setLikeCount(data.likesCount)
-  //     //   setDislikeCount(data.dislikesCount)
-  //     // }
-  //   });
-
-  // }, [p]);
-
 
   const onSuccess = async (action: "like" | "dislike") => {
     await utils.posts.getPosts.invalidate();
@@ -118,23 +102,13 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   }
 
   const handleDisLike = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const getLikeOrDisLike = p?.posts?.likes?.find((like) => like.userId === session.data?.user?.id && p?.posts?.id === like.postId);
-
-    if (getLikeOrDisLike) {
-      DisLikePost({
-        postId: p?.posts?.id as number,
-        liked: false,
-        disliked: true,
-        id: getLikeOrDisLike?.id as string
-      })
-    } else {
-      LikePost({
-        postId: p?.posts?.id as number,
-        liked: false,
-        disliked: true,
-        userId: "",
-      })
-    }
+    DisLikePost({
+      postId: p?.posts?.id as number,
+      liked: false,
+      disliked: true,
+      id: "",
+      userId: ""
+    })
   }
 
   const { mutate: CreateComment } = trpc.comments.createComment.useMutation({
@@ -149,18 +123,30 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
     },
   });
 
+  const { mutate: CreateReply } = trpc.posts.createCommentReply.useMutation({
+    onSuccess: async (data) => {
+      await utils.posts.getPosts.invalidate();
+      router.refresh();
+      toast({
+        title: 'Success',
+        description: `Post created reply!`,
+        variant: "default",
+      });
+    },
+  });
+
   const handleSubmitComment = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const comment = {
-      content: comments,
+    const values = {
+      content: comment,
       userId: session.data?.user?.id,
       postId: p?.posts?.id || 0,
     }
-    CreateComment(comment);
+    CreateComment(values);
   }
 
   const handleComment = (event: React.ChangeEvent<HTMLInputElement>) => {
     const comment = event.target.value;
-    setComments(comment);
+    setComment(comment);
   }
 
   const handleReply = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,18 +154,17 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
     setReply(reply);
   };
 
-  const handleSubmitReply = (e: React.MouseEvent<HTMLInputElement>, commentId: CommentId) => {
+  const handleSubmitReply = (e: React.MouseEvent<HTMLButtonElement>, commentId: CommentId) => {
     const replyComment = {
       content: reply,
       userId: session.data?.user?.id,
-      postId: p?.posts?.id || 0,
-      commentId: commentId,
+      postId: p?.posts?.id!,
+      parentId: commentId,
     }
-    CreateComment(replyComment, commentId);
+    CreateReply(replyComment);
   }
 
-
-  function renderComments(comments) {
+  function renderComments(comments: Comment[]) {
     return comments.map((comment) => (
       <div className="comment" key={comment.id}>
         <div className="author">{comment.author}</div>
@@ -228,7 +213,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
               <Button onClick={(event) => handleDisLike(event)}>DisLike</Button>
             </div>
             <div>
-              {p?.posts?.Comment && renderComments(p.posts.Comment)}
+              {comments && renderComments(comments)}
             </div>
             <input
               type="text"
