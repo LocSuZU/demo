@@ -19,16 +19,22 @@ type Comment = {
 
 export default function PostDetail({ params, post }: { params: { id: Number }, post: CompletePost }) {
   const id = Number(params.id);
-  const { data: p } = trpc.posts.getPostById.useQuery({ id }, {
-    initialData: { posts: post },
-    refetchOnMount: true,
-  });
   const [likeCount, setLikeCount] = useState<Number>(0);
   const [dislikeCount, setDislikeCount] = useState<Number>(0);
   const [comments, setComments] = React.useState<Comment[] | null>(null);
   const [comment, setComment] = React.useState<string | null>(null);
   const [reply, setReply] = React.useState<string | null>(null);
   const [user, setUser] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const { data: p, refetch } = trpc.posts.getPostById.useQuery({ postId: id, limit, page }, {
+    initialData: { posts: post },
+    refetchOnMount: true,
+  });
+
+
 
   const session = useSession();
   const router = useRouter();
@@ -55,8 +61,51 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
       });
 
       chanel.bind('client:comment', (data) => {
-        setComments((comments) => [...(comments || []), data]);
+        setComments((comments) => {
+          const newComments = [...(comments || []), data];
+          if (newComments.length > limit) {
+            return newComments.slice(0, limit);
+          }
+          return newComments;
+        });
       });
+
+      chanel.bind('client:update-comment', (data) => {
+        if (data.parentId) {
+          setComments((comments) =>
+            comments?.map((comment) => {
+              if (comment.id === data.parentId) {
+                return {
+                  ...comment,
+                  replies: comment.replies?.map((reply) => {
+                    if (reply.id === data.id) {
+                      return {
+                        ...reply,
+                        content: data.content
+                      }
+                    }
+                    return reply;
+                  }),
+                };
+              }
+              return comment;
+            })
+          );
+        } else {
+          setComments((comments) =>
+            comments?.map((comment) => {
+              if (comment.id === data.id) {
+                return {
+                  ...comment,
+                  content: data.content,
+                };
+              }
+              return comment;
+            })
+          );
+        }
+      });
+
 
       chanel.bind('client:reply', (data) => {
         setComments((comments) =>
@@ -99,7 +148,8 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
         pusherClient.unsubscribe(p?.posts?.id?.toString()!);
       }
     }
-  }, [p]);
+    refetch();
+  }, [p, page, refetch]);
 
   const onSuccess = async (action: "like" | "dislike") => {
     await utils.posts.getPosts.invalidate();
@@ -199,15 +249,18 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
         }
         CreateComment(create);
         break;
-      // case "update":
-      //   const update = {
-      //     content: comment,
-      //     userId: session.data?.user?.id,
-      //     postId: p?.posts?.id!,
-      //     id: commentId
-      //   }
-      //   UpdateComment(update);
-      //   break;
+      case "update":
+        const commentElement = document.getElementById('commentId');
+        if (commentElement) {
+          const update = {
+            content: comment,
+            userId: session.data?.user?.id,
+            postId: p?.posts?.id!,
+            id: commentElement?.value!
+          }
+          UpdateComment(update);
+        }
+        break;
       default:
         break;
     }
@@ -223,25 +276,72 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
     setReply(reply);
   };
 
-  const handleSubmitReply = (e: React.MouseEvent<HTMLButtonElement>, commentId: CommentId) => {
-    const replyComment = {
-      content: reply,
-      userId: session.data?.user?.id,
-      postId: p?.posts?.id!,
-      parentId: commentId,
+  const handleSubmitReply = (e: React.MouseEvent<HTMLButtonElement>, commentId: CommentId, type: 'create' | 'update') => {
+    switch (type) {
+      case "create":
+        const replyComment = {
+          content: reply,
+          userId: session.data?.user?.id,
+          postId: p?.posts?.id!,
+          parentId: commentId,
+        }
+        CreateReply(replyComment);
+        break;
+      case "update":
+        const commentElement = document.getElementById('commentId');
+        const parentIdElement = document.getElementById('parentId');
+        if (parentIdElement && commentElement) {
+          const update = {
+            content: reply,
+            userId: session.data?.user?.id,
+            postId: p?.posts?.id!,
+            parentId: commentElement?.value!,
+            id: parentIdElement?.value!
+          }
+          UpdateComment(update);
+        }
+        break;
+      default:
+        break;
     }
-    CreateReply(replyComment);
   }
+
+
+  const loadMoreComments = async () => {
+    setPage(prevPage => prevPage + 1);
+
+    const newComments = await refetch({
+      limit: limit,
+      page: page,
+    });
+
+    console.log(111, newComments);
+
+
+    // const newComments = [...comments, ...p.posts.comments];
+
+    // setHasMore(newComments.length === limit);
+  };
 
   function renderComments(comments: Comment[]) {
     return comments?.map((comment) => (
       <div className="comment" key={comment.id}>
         <div className="author">{comment.author}</div>
-        <div className="content">{comment.content}</div>
+        <div className="content">{comment.content}
+        </div>
+        {
+          comment.replies && comment.replies.map((reply) => {
+            return (
+              <input key={reply.id} type="hidden" value={reply.id} name="parentId" id="parentId" />
+            )
+          })
+        }
+        <input type="hidden" value={comment.id} name="commentId" id="commentId" />
+
         <div>
           <input type="text" placeholder="Write a reply..." onChange={(e) => handleReply(e)} />
-          <Button onClick={(e) => handleSubmitReply(e, comment.id)}>Reply</Button>
-          <Button onClick={(e) => handleSubmitComment(e, comment.id)}>Update</Button>
+          <Button onClick={(e) => handleSubmitReply(e, comment.id, 'create')}>Reply</Button>
+          <Button onClick={(e) => handleSubmitReply(e, comment.id, 'update')}>Update</Button>
           <Button
             type="button"
             variant={"destructive"}
@@ -290,6 +390,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
             </div>
             <div>
               {comments && renderComments(comments)}
+              {hasMore && <button onClick={loadMoreComments}>Load More</button>}
             </div>
             <input
               type="text"
@@ -297,7 +398,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
               onChange={(e) => handleComment(e)}
             />
             <Button onClick={(event) => handleSubmitComment(event, "create")}>Gửi</Button>
-            <Button onClick={(event) => handleSubmitComment(event, "update")}>Update</Button>
+            <Button onClick={(event) => handleSubmitComment(event, "update")}>Sửa</Button>
           </>
         )
       }

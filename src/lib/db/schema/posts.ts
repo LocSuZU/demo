@@ -37,6 +37,14 @@ export const updateLikePostsSchema = updateLikeSchema.extend({}).omit({
 });
 export const likeIdSchema = updateLikeSchema.pick({ id: true });
 
+export const getPostWithPagination = z.object({
+  postId: z.number(),
+  page: z.number(),
+  limit: z.number(),
+});
+
+
+
 
 // Types for posts - used to type API request params and within Components
 export type Post = z.infer<typeof updatePostSchema>;

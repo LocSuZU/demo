@@ -5,7 +5,8 @@ import {
   insertPostParams,
   updatePostParams,
   insertLikeSchema,
-  updateLikePostsSchema
+  updateLikePostsSchema,
+  getPostWithPagination
 } from "@/lib/db/schema/posts";
 import { insertCommentParams } from "@/lib/db/schema/comments";
 import { createPost, deletePost, updatePost , likesPost , dislikePost ,  createCommentReply } from "@/lib/api/posts/mutations";
@@ -14,8 +15,8 @@ export const postsRouter = router({
   getPosts: publicProcedure.query(async () => {
     return getPosts();
   }),
-  getPostById: publicProcedure.input(postIdSchema).query(async ({ input }) => {
-    return getPostById(input.id);
+  getPostById: publicProcedure.input(getPostWithPagination).query(async ({ input }) => {
+    return getPostById(input.postId ,  input.page , input.limit);
   }),
   createPost: publicProcedure
     .input(insertPostParams)
