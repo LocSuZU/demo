@@ -28,24 +28,33 @@ export const createComment = async (comment: NewCommentParams) => {
 };
 
 export const updateComment = async (id: CommentId, comment: UpdateCommentParams) => {
-  const { session } = await getUserAuth();
-  const { id: commentId } = commentIdSchema.parse({ id });
-  const newComment = updateCommentSchema.parse({ ...comment, userId: session?.user.id! });
-  try {
-    const c = await db.comment.update({ where: { id: commentId, userId: session?.user.id! }, data: newComment})
-    return { comment: c };
-  } catch (err) {
-    const message = (err as Error).message ?? "Error, please try again";
-    console.error(message);
-    return { error: message };
-  }
+  console.log("updateComment", id, comment);
+  // const { session } = await getUserAuth();
+  // const { id: commentId } = commentIdSchema.parse({ id });
+  // const newComment = updateCommentSchema.parse({ ...comment, userId: session?.user.id! });
+  // const p = await db.post.findUnique({ where: { id:  newComment.postId  } , 
+  //   include: { user: true } 
+  // });
+  // await pusherServer.trigger(p?.id.toString(), "client:comment", newComment);
+  // try {
+  //   const c = await db.comment.update({ where: { id: commentId, userId: session?.user.id! }, data: newComment})
+  //   return { comment: c };
+  // } catch (err) {
+  //   const message = (err as Error).message ?? "Error, please try again";
+  //   console.error(message);
+  //   return { error: message };
+  // }
 };
 
-export const deleteComment = async (id: CommentId) => {
+export const deleteComment = async (id: CommentId ) => {
   const { session } = await getUserAuth();
   const { id: commentId } = commentIdSchema.parse({ id });
   try {
     const c = await db.comment.delete({ where: { id: commentId, userId: session?.user.id! }})
+    const p = await db.post.findUnique({ where: { id:  c.postId  } , 
+      include: { user: true } 
+    });
+    await pusherServer.trigger(p?.id.toString(), "client:delete", c);
     return { comment: c };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";

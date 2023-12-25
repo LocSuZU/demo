@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { CompletePost, Post } from "@/lib/db/schema/posts";
 import { trpc } from "@/lib/trpc/client";
-import io from 'socket.io-client'
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { CommentId, NewCommentParams } from "@/lib/db/schema/comments";
@@ -43,52 +42,61 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
       setComments(p?.posts?.comments)
       const chanel = pusherClient.subscribe(p?.posts?.id?.toString());
       chanel.bind('client:like', (data) => {
-        if (data) {
-          setLikeCount(data.totalLike)
-          setDislikeCount(data.totalDislike)
-          setUser(data?.session?.user.name == session?.data?.user.name ? null : data?.session?.user.name || data?.session?.user.email)
-        }
+        setLikeCount(data.totalLike)
+        setDislikeCount(data.totalDislike)
+        setUser(data?.session?.user.name == session?.data?.user.name ? null : data?.session?.user.name || data?.session?.user.email)
+
       });
 
       chanel.bind('client:dislike', (data) => {
-        if (data) {
-          setLikeCount(data.totalLike)
-          setDislikeCount(data.totalDislike)
-          setUser(data?.session?.user.name == session?.data?.user.name ? null : data?.session?.user.name || data?.session?.user.email)
-        }
+        setLikeCount(data.totalLike)
+        setDislikeCount(data.totalDislike)
+        setUser(data?.session?.user.name == session?.data?.user.name ? null : data?.session?.user.name || data?.session?.user.email)
       });
 
       chanel.bind('client:comment', (data) => {
-        if (data) {
-          setComments((comments) => [...comments, data]);
-        }
+        setComments((comments) => [...(comments || []), data]);
       });
 
       chanel.bind('client:reply', (data) => {
-        if (data) {
-          setComments((comments) =>
-            comments?.map((comment) => {
-              if (comment.id === data.parentId) {
-                if (comment.replies) {
-                  return {
-                    ...comment,
-                    replies: [...comment.replies, data],
-                  };
-                } else {
-                  return {
-                    ...comment,
-                    replies: [data],
-                  };
-                }
+        setComments((comments) =>
+          comments?.map((comment) => {
+            if (comment.id === data.parentId) {
+              if (comment.replies) {
+                return {
+                  ...comment,
+                  replies: [...comment.replies, data],
+                };
+              } else {
+                return {
+                  ...comment,
+                  replies: [data],
+                };
               }
-              return comment;
-            })
+            }
+            return comment;
+          })
+        );
+      });
+
+      chanel.bind('client:delete', (data) => {
+        if (data.parentId) {
+          setComments((comments) =>
+            comments?.map((comment) => ({
+              ...comment,
+              replies: comment.replies?.filter((reply) => reply.id !== data.id),
+            }))
           );
+
+        } else {
+          const newComments = comments?.filter((comment) => comment.id !== data.id);
+          setComments(newComments!);
         }
       });
 
+
       return () => {
-        pusherClient.unsubscribe('posts');
+        pusherClient.unsubscribe(p?.posts?.id?.toString()!);
       }
     }
   }, [p]);
@@ -143,6 +151,32 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
     },
   });
 
+  const { mutate: UpdateComment } = trpc.comments.updateComment.useMutation({
+    onSuccess: async (data) => {
+      await utils.posts.getPosts.invalidate();
+      router.refresh();
+      toast({
+        title: 'Success',
+        description: `Post updated comment!`,
+        variant: "default",
+      });
+    },
+  });
+
+  const { mutate: deleteComment, isLoading: isDeleting } =
+    trpc.comments.deleteComment.useMutation({
+      onSuccess: async () => {
+        await utils.posts.getPosts.invalidate();
+        router.refresh();
+        toast({
+          title: 'Success',
+          description: `Post delete comment!`,
+          variant: "default",
+        });
+      }
+    });
+
+
   const { mutate: CreateReply } = trpc.posts.createCommentReply.useMutation({
     onSuccess: async (data) => {
       await utils.posts.getPosts.invalidate();
@@ -155,13 +189,28 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
     },
   });
 
-  const handleSubmitComment = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const values = {
-      content: comment,
-      userId: session.data?.user?.id,
-      postId: p?.posts?.id || 0,
+  const handleSubmitComment = (event: React.MouseEvent<HTMLButtonElement>, type: "create" | "update") => {
+    switch (type) {
+      case "create":
+        const create = {
+          content: comment,
+          userId: session.data?.user?.id,
+          postId: p?.posts?.id!,
+        }
+        CreateComment(create);
+        break;
+      // case "update":
+      //   const update = {
+      //     content: comment,
+      //     userId: session.data?.user?.id,
+      //     postId: p?.posts?.id!,
+      //     id: commentId
+      //   }
+      //   UpdateComment(update);
+      //   break;
+      default:
+        break;
     }
-    CreateComment(values);
   }
 
   const handleComment = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,13 +234,21 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   }
 
   function renderComments(comments: Comment[]) {
-    return comments.map((comment) => (
+    return comments?.map((comment) => (
       <div className="comment" key={comment.id}>
         <div className="author">{comment.author}</div>
         <div className="content">{comment.content}</div>
         <div>
           <input type="text" placeholder="Write a reply..." onChange={(e) => handleReply(e)} />
-          <button onClick={(e) => handleSubmitReply(e, comment.id)}>Reply</button>
+          <Button onClick={(e) => handleSubmitReply(e, comment.id)}>Reply</Button>
+          <Button onClick={(e) => handleSubmitComment(e, comment.id)}>Update</Button>
+          <Button
+            type="button"
+            variant={"destructive"}
+            onClick={() => deleteComment({ id: comment.id })}
+          >
+            Delet{isDeleting ? "ing..." : "e"}
+          </Button>
         </div>
         {comment.replies && (
           <ul className="replies">
@@ -227,7 +284,6 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
                 DisLikes :
                 <p>{dislikeCount}</p>
               </label>
-
             </div><div>
               <Button onClick={(event) => handleLike(event)}>Like</Button>
               <Button onClick={(event) => handleDisLike(event)}>DisLike</Button>
@@ -240,7 +296,8 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
               placeholder="Nhập bình luận của bạn"
               onChange={(e) => handleComment(e)}
             />
-            <Button onClick={(event) => handleSubmitComment(event)}>Gửi</Button>
+            <Button onClick={(event) => handleSubmitComment(event, "create")}>Gửi</Button>
+            <Button onClick={(event) => handleSubmitComment(event, "update")}>Update</Button>
           </>
         )
       }
