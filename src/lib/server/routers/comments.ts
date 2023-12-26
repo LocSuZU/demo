@@ -1,4 +1,4 @@
-import { getCommentById, getComments  } from "@/lib/api/comments/queries";
+import { getCommentById, getComments , getCommentsByPostId    } from "@/lib/api/comments/queries";
 import { publicProcedure, router } from "@/lib/server/trpc";
 import {
   commentIdSchema,
@@ -6,6 +6,7 @@ import {
   updateCommentParams,
   commentAndPostIdParams,
 } from "@/lib/db/schema/comments";
+import { postIdSchema , getPostWithPagination } from "@/lib/db/schema/posts";
 import { createComment, deleteComment, updateComment } from "@/lib/api/comments/mutations";
 
 export const commentsRouter = router({
@@ -29,5 +30,8 @@ export const commentsRouter = router({
     .input(commentIdSchema)
     .mutation(async ({ input }) => {
       return deleteComment(input.id);
+    }),
+    getCommentsByPostId: publicProcedure.input(getPostWithPagination).query(async ({ input }) => {
+      return getCommentsByPostId(input.postId , null , input.page ,input.limit);
     }),
 });

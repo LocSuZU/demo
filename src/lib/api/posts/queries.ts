@@ -43,7 +43,7 @@ export const getPostById = async (id: PostId , page: number | 1 , limit: number 
     where: { id: postId},
     include : { user: true , likes : true, Share : true  }
   });
-  p.comments = await fetchComments(postId , null, page , limit);
+  //p.comments = await fetchComments(postId , null, page , limit);
   return { posts: p };
 };
 

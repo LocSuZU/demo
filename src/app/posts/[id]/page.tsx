@@ -26,13 +26,19 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   const [reply, setReply] = React.useState<string | null>(null);
   const [user, setUser] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [hasMore, setHasMore] = useState(true);
 
-  const { data: p, refetch } = trpc.posts.getPostById.useQuery({ postId: id, limit, page }, {
+  const { data: p } = trpc.posts.getPostById.useQuery({ postId: id, limit, page }, {
     initialData: { posts: post },
     refetchOnMount: true,
   });
+
+  const { data: commentsData } = trpc.comments.getCommentsByPostId.useQuery({ postId: id, limit, page }, {
+    refetchOnMount: true,
+  });
+
+
 
 
 
@@ -45,7 +51,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
     if (p?.posts) {
       setLikeCount(p?.posts?.totalLike)
       setDislikeCount(p?.posts?.totalDislike)
-      setComments(p?.posts?.comments)
+      setComments(commentsData)
       const chanel = pusherClient.subscribe(p?.posts?.id?.toString());
       chanel.bind('client:like', (data) => {
         setLikeCount(data.totalLike)
@@ -130,16 +136,15 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
 
       chanel.bind('client:delete', (data) => {
         if (data.parentId) {
-          setComments((comments) =>
-            comments?.map((comment) => ({
+          setComments((commentsData) =>
+            (commentsData || []).map((comment) => ({
               ...comment,
               replies: comment.replies?.filter((reply) => reply.id !== data.id),
             }))
           );
-
         } else {
-          const newComments = comments?.filter((comment) => comment.id !== data.id);
-          setComments(newComments!);
+          const newComments = (commentsData || []).filter((comment) => comment.id !== data.id);
+          setComments(newComments);
         }
       });
 
@@ -148,8 +153,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
         pusherClient.unsubscribe(p?.posts?.id?.toString()!);
       }
     }
-    refetch();
-  }, [p, page, refetch]);
+  }, [p, page, commentsData]);
 
   const onSuccess = async (action: "like" | "dislike") => {
     await utils.posts.getPosts.invalidate();
@@ -307,18 +311,17 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
   }
 
 
-  const loadMoreComments = async () => {
+  const loadMoreComments = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     setPage(prevPage => prevPage + 1);
 
     const newComments = await refetch({
       limit: limit,
-      page: page,
+      page: page + 1,
     });
 
-    console.log(111, newComments);
-
-
-    // const newComments = [...comments, ...p.posts.comments];
+    setComments(prevComments => [...prevComments, ...newComments?.data?.comments]);
+    setPage(page + 1);
 
     // setHasMore(newComments.length === limit);
   };
@@ -390,7 +393,7 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
             </div>
             <div>
               {comments && renderComments(comments)}
-              {hasMore && <button onClick={loadMoreComments}>Load More</button>}
+              {hasMore && <button onClick={(e) => loadMoreComments(e)}>Load More</button>}
             </div>
             <input
               type="text"
