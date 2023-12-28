@@ -20,7 +20,7 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "hsl(var(--primar  y))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -47,6 +47,13 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        slate: {
+          300: '#D1D5DB',
+        }
       },
       borderRadius: {
         lg: `var(--radius)`,
@@ -70,7 +77,18 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      width: {
+        "Device-breakpoint-Desktop" : '1168px',
+      },
+      minWidth: {
+        "Device-breakpoint-Desktop" : '1168px',
+      }
+      
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  
+  plugins: [
+    require("tailwindcss-animate"),
+    require('@tailwindcss/typography'),
+  ],
 }

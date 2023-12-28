@@ -11,6 +11,8 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import { ModeToggle } from "@/components/ui/ThemeToggle";
+import Image from "next/image";
+import Header from "./common/Header";
 
 export default async function Navbar() {
   const { session } = await getUserAuth();
@@ -21,51 +23,51 @@ export default async function Navbar() {
 
   if (session?.user) {
     return (
-      <nav className="py-2 flex items-center justify-between transition-all duration-300">
-        <h1 className="font-semibold hover:opacity-75 transition-hover cursor-pointer">
-          <Link href="/">Logo</Link>
-        </h1>
-        <div className="space-x-2 flex items-center">
-          <ModeToggle />
-          {session ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar>
-                  <AvatarFallback>
-                    {nameExists
-                      ? session.user.name
+      <>
+        <Header />
+        <nav className="py-2 flex items-center justify-between">
+          <div className="space-x-2 flex items-center">
+            <ModeToggle />
+            {session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Avatar>
+                    <AvatarFallback>
+                      {nameExists
+                        ? session.user.name
                           ?.split(" ")
                           .map((word) => word[0].toUpperCase())
                           .join("")
-                      : "~"}
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <span className="font-semibold">
-                    {nameExists ? session.user.name : "New User"}
-                  </span>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Link href="/account">
-                  <DropdownMenuItem className="cursor-pointer">
-                    Account
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/api/auth/signout">
-                  <DropdownMenuItem className="cursor-pointer">
-                    Sign out
-                  </DropdownMenuItem>
-                </Link>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link href="/sign-in">Sign in</Link>
-          )}
+                        : "~"}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <span className="font-semibold">
+                      {nameExists ? session.user.name : "New User"}
+                    </span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <Link href="/account">
+                    <DropdownMenuItem className="cursor-pointer">
+                      Account
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/api/auth/signout">
+                    <DropdownMenuItem className="cursor-pointer">
+                      Sign out
+                    </DropdownMenuItem>
+                  </Link>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/sign-in">Sign in</Link>
+            )}
 
-        </div>
-      </nav>
+          </div>
+        </nav>
+      </>
     );
   } else return null;
 }
