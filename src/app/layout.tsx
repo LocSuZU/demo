@@ -27,7 +27,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <NextAuthProvider>
             <TrpcProvider>
-              <main className="max-w-full h-72 pt-4 pr-720 justify-center items-center self-stretch ">
+              <main className="flex w-Device-breakpoint-Desktop min-w-Desktop max-w-[1920px] flex-col items-center">
                 <Header />
                 {/* <Navbar /> */}
                 {children}

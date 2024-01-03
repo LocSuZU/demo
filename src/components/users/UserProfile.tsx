@@ -1,63 +1,64 @@
+'use client';
 import React from "react";
 import Image from "next/image";
 import { CompleteUser } from "@/lib/db/schema/users";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button";
+import CustomerAvatar from "../ui/CustomerAvatar";
 
 export default function UserProfile({ user }: { user: CompleteUser }) {
   return (
-    <div className="items-center self-stretch flex flex-col justify-center px-16 py-2.5 max-md:px-5">
-      <div className="flex w-[574px] max-w-full flex-col items-stretch">
-        <form className="max-w-[574px] items-stretch flex flex-col px-4 max-md:max-w-full">
-          <header className="header items-stretch flex justify-between gap-4 max-md:max-w-full max-md:flex-wrap">
-            <div className="items-stretch flex grow basis-[0%] flex-col max-md:max-w-full">
-              <h1 className="text-slate-900 text-3xl leading-9 max-md:max-w-full">
+    <div className="flex py-2.5 flex-col items-center gap-5 self-stretch "> {/* col 1  */}
+      <div className="flex max-w-Content-breakpoint-Desktop px-4 flex-col items-start gap-2.5 self-stretch">
+        <div className="flex items-start gap-4 self-stretch"> {/* row thu 3  */}
+          <div className="flex flex-col items-start gap-2 flex-1">
+            <div className="felx felx-col items-start self-stretch pb-2">
+              <div className="self-stretch font-openSans text-slate-900 text-29 font-normal not-italic leading-37.7">
                 Cẩm Khúc
-              </h1>
-              <p className="text-gray-500 text-base leading-6 max-md:max-w-full">
+              </div>
+              <div className="self-stretch font-openSans text-slate-500 text-15 font-normal not-italic leading-22.5">
                 @camkhuc.99
-              </p>
-              <div className="items-stretch flex justify-between gap-4 mt-2 pr-20 max-md:max-w-full max-md:flex-wrap max-md:pr-5">
-                <div className="items-stretch flex justify-between gap-1">
-                  <p className="text-black text-base font-semibold leading-6 whitespace-nowrap" aria-label="16">
-                    16
-                  </p>
-                  <p className="text-black text-xs leading-5 self-center grow whitespace-nowrap my-auto">
-                    Người theo dõi
-                  </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 self-stretch pt-2">
+              <div className="flex items-baseline gap-1">
+                <div className="text-black font-openSans text-15 not-italic leading-22.5 font-semibold">
+                  16
                 </div>
-                <div className="items-stretch flex justify-between gap-1">
-                  <p className="text-black text-base font-semibold leading-6 whitespace-nowrap" aria-label="16">
-                    16
-                  </p>
-                  <p className="text-black text-xs leading-5 self-center grow whitespace-nowrap my-auto">
-                    Đang theo dõi
-                  </p>
+                <div className="text-black text-12 not-italic leading-18 font-normal ">
+                  Người theo dõi
+                </div>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <div className="text-black font-openSans text-15 not-italic leading-22.5 font-semibold">
+                  16
+                </div>
+                <div className="text-black text-12 not-italic leading-18 font-normal ">
+                  Đang theo dõi
                 </div>
               </div>
             </div>
-          </header>
-          <div className="text-slate-900 text-4xl leading-[48.1px] whitespace-nowrap justify-center items-center bg-neutral-200 h-[92px] px-6 rounded-3xl max-md:px-5">
-            AB
           </div>
-          <p className="text-slate-900 text-base leading-6 mt-2.5 max-md:max-w-full">
-            All good things are wild and free..
-          </p>
-          <div className="form-group border border-bg-slate-300   flex flex-col justify-center mt-2.5 pt-2 pr-4 rounded-[999px] border-solid max-md:max-w-full max-md:px-5">
-            <div className="items-stretch flex gap-2 rounded-[999px]">
-              <Image
-                loading="lazy"
-                src="/images/icons/button_edit.svg"
-                className="aspect-square object-contain object-center w-6 overflow-hidden shrink-0 max-w-full"
-                width={24}
-                height={24}
-                alt='Chỉnh sửa thông tin'
-              />
-              <div className="text-slate-900 text-base font-semibold leading-6 grow whitespace-nowrap">
-                Chỉnh sửa thông tin
+          <div className="flex w-92 h-92 flex-col items-start pl-4">
+
+            <div className="flex p-15 items-start gap-15 rounded bg-Blue-50">
+              <div className="flex w-15 h-80 p-0 flex-col items-start gap-0 rounded-none" >
+                <div className="flex flex-col items-start flex-1 self-stretch" style={{
+                  '--placeholder-image': 'url("/images/icons/placeholder-image.png")',
+                  background: 'var(--placeholder-image, lightgray), #FAFAFA'
+                } as React.CSSProperties}>
+                  <Image src="/images/icons/placeholder-image.png" alt="Picture of the author" width={40} height={40} />
+                </div>
               </div>
             </div>
+
           </div>
-        </form>
-      </div >
+
+
+        </div>
+      </div>
     </div >
+
+
   );
 }

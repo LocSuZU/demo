@@ -12,6 +12,7 @@ module.exports = {
         "2xl": "1400px",
       },
     },
+    
     extend: {
       colors: {
         border: "hsl(var(--border))",
@@ -53,6 +54,13 @@ module.exports = {
         },
         slate: {
           300: '#D1D5DB',
+          100: '#E7E7E7'
+        },
+        Blue: {
+          50 : '#F4F7FD',
+        },
+        rotate: {
+          '24' : '24.47deg',
         }
       },
       borderRadius: {
@@ -62,6 +70,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
+        'openSans': ['Open Sans', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {
@@ -78,11 +87,44 @@ module.exports = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       width: {
-        "Device-breakpoint-Desktop" : '1168px',
+        "Device-breakpoint-Desktop" : '1440px',
+        "92" : "92px", 
+        "15" : "40px",
+      },
+      height : {
+        "92" : "92px",
+        "434" : "434px",
+        "80" : "80px",
+        "120" : "120px",
       },
       minWidth: {
-        "Device-breakpoint-Desktop" : '1168px',
-      }
+        "Desktop" : '1440px',
+      },  
+      fontSize: {
+        "15": "15px",
+        "29" : "29px",
+        "12" : "12px",
+        "37" : "37px",
+      },
+      lineHeight: {
+        '37.7': '37.7px',
+        '22.5' : '22.5px',
+        '48.1' : '48,1px',
+        '18' : '18px',
+      },
+      borderRadius:{
+        "avatar-radius" : "23px 9px"
+      },
+      padding: {
+        '15': '40px',
+      },
+      gap: {
+        '15': '40px',
+        '6' : '10px'
+      },
+      backgroundImage: {
+        'placeholder': 'url("/images/icons/placeholder-image.png") lightgray 50% / cover no-repeat, #FAFAFA',
+      },
       
     },
   },
