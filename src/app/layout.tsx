@@ -27,14 +27,13 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <NextAuthProvider>
             <TrpcProvider>
-              <main className="flex w-Device-breakpoint-Desktop min-w-Desktop max-w-[1920px] flex-col items-center">
+              <main className="flex w-Device-breakpoint-Desktop min-w-Desktop max-w-1920 flex-col items-center bg-background-backgroundfull justify-center h-full">
                 <Header />
                 {/* <Navbar /> */}
                 {children}
               </main>
             </TrpcProvider>
           </NextAuthProvider>
-
           <Toaster />
         </ThemeProvider>
       </body>

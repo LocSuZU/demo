@@ -18,7 +18,11 @@ module.exports = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
+        background: {
+          DEFAULT: "hsl(var(--background))",
+          backgroundfull: "#FFF",
+        },
+          
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primar  y))",
@@ -88,6 +92,7 @@ module.exports = {
       },
       width: {
         "Device-breakpoint-Desktop" : '1440px',
+        "Content-breakpoint-Desktop" : '574px',
         "92" : "92px", 
         "15" : "40px",
       },
@@ -100,6 +105,9 @@ module.exports = {
       minWidth: {
         "Desktop" : '1440px',
       },  
+      maxWidth: {
+        "1920" : '1920px',
+      },
       fontSize: {
         "15": "15px",
         "29" : "29px",
@@ -111,6 +119,7 @@ module.exports = {
         '22.5' : '22.5px',
         '48.1' : '48,1px',
         '18' : '18px',
+        '24' : '24px',
       },
       borderRadius:{
         "avatar-radius" : "23px 9px"
@@ -125,6 +134,9 @@ module.exports = {
       backgroundImage: {
         'placeholder': 'url("/images/icons/placeholder-image.png") lightgray 50% / cover no-repeat, #FAFAFA',
       },
+      border: {
+        'borderslate' : "var(--Slate-300,#D1D5DB)"
+      }
       
     },
   },

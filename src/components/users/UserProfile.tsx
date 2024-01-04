@@ -2,14 +2,11 @@
 import React from "react";
 import Image from "next/image";
 import { CompleteUser } from "@/lib/db/schema/users";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button";
-import CustomerAvatar from "../ui/CustomerAvatar";
 
-export default function UserProfile({ user }: { user: CompleteUser }) {
+export default function UserProfile() {
   return (
-    <div className="flex py-2.5 flex-col items-center gap-5 self-stretch "> {/* col 1  */}
-      <div className="flex max-w-Content-breakpoint-Desktop px-4 flex-col items-start gap-2.5 self-stretch">
+    <div className="flex py-2.5 flex-col items-center gap-5 "> {/* col 1  */}
+      <div className="flex w-[542px] h-[175px] max-w-Content-breakpoint-Desktop px-4 flex-col items-start gap-2.5 self-stretch">
         <div className="flex items-start gap-4 self-stretch"> {/* row thu 3  */}
           <div className="flex flex-col items-start gap-2 flex-1">
             <div className="felx felx-col items-start self-stretch pb-2">
@@ -40,7 +37,6 @@ export default function UserProfile({ user }: { user: CompleteUser }) {
             </div>
           </div>
           <div className="flex w-92 h-92 flex-col items-start pl-4">
-
             <div className="flex p-15 items-start gap-15 rounded bg-Blue-50">
               <div className="flex w-15 h-80 p-0 flex-col items-start gap-0 rounded-none" >
                 <div className="flex flex-col items-start flex-1 self-stretch" style={{
@@ -51,11 +47,34 @@ export default function UserProfile({ user }: { user: CompleteUser }) {
                 </div>
               </div>
             </div>
-
+          </div>
+        </div>
+        <div className="self-stretch text-slate-900 font-openSans text-15 not-italic font-normal leading-22.5">
+          All good things are wild and free..
+        </div>
+        <div className="w-[510px] mt-2.5 mx-4 pb-5 flex h-10 px-4 py-2 flex-col items-center gap-1 self-stretch rounded-full 
+        border border-gray-200 border-solid ">
+          <div className="w-[175px] h-[24] flex items-start gap-2 rounded-[999px]">
+            <Image src="/images/icons/Pencil.png" width={24} height={24} alt="pencil" />
+            <div className="text-slate-900 font-openSans text-15 font-normal leading-24">
+              Chỉnh sửa thông tin
+            </div>
+          </div>
+        </div>
+        <div className="flex max-w-[574px] h-auto w-Content-breakpoint-Desktop px-4 my-5 items-start">
+          <div className="flex-1">
+            <button className="ml-4 w-[271px] flex justify-center items-start flex-1 border-b border-slate-900 border-solid">
+              <p className="px-4 pt-2 flex items-start gap-2 rounded-[999px] ">Bài Đăng</p>
+            </button>
+          </div>
+          <div className="flex-2">
+            <button className="ml-4 w-[271px] flex justify-center items-start flex-1 border-b border-slate-900 border-solid">
+              <p className="px-4 pt-2 flex items-start gap-2 rounded-[999px] ">Đã lưu</p>
+            </button>
           </div>
 
-
         </div>
+
       </div>
     </div >
 
