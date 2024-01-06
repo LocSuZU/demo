@@ -58,7 +58,7 @@ module.exports = {
         },
         slate: {
           300: '#D1D5DB',
-          100: '#E7E7E7'
+          100: '#E7E7E7',
         },
         Blue: {
           50 : '#F4F7FD',
@@ -71,6 +71,7 @@ module.exports = {
         lg: `var(--radius)`,
         md: `calc(var(--radius) - 2px)`,
         sm: "calc(var(--radius) - 4px)",
+        '10': '20px',
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
@@ -107,6 +108,7 @@ module.exports = {
       },  
       maxWidth: {
         "1920" : '1920px',
+        "Content-breakpoint-Desktop" : '574px',
       },
       fontSize: {
         "15": "15px",
@@ -132,12 +134,26 @@ module.exports = {
         '6' : '10px'
       },
       backgroundImage: {
-        'placeholder': 'url("/images/icons/placeholder-image.png") lightgray 50% / cover no-repeat, #FAFAFA',
+        'placeholder': 'url("/images/icons/placeholder-image.png")',
+      },
+      backgroundColor: {
+        'fallback': '#FAFAFA',
+        'Transparent-White-30': 'rgba(255, 255, 255, 0.30)',
       },
       border: {
         'borderslate' : "var(--Slate-300,#D1D5DB)"
+      },
+      fill: {
+        union: {
+          DEFAULT: '#FF001B',
+          'first': '#EB3044',
+          'secound' : '#EB3044',
+        },
+      },
+      stroke: {
+        'base-white' :  '#FFF',
       }
-      
+
     },
   },
   

@@ -29,6 +29,7 @@ export default function RootLayout({
             <TrpcProvider>
               <main className="flex w-Device-breakpoint-Desktop min-w-Desktop max-w-1920 flex-col items-center bg-background-backgroundfull justify-center h-full">
                 <Header />
+
                 {/* <Navbar /> */}
                 {children}
               </main>
