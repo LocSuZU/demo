@@ -115,6 +115,7 @@ module.exports = {
         "29" : "29px",
         "12" : "12px",
         "37" : "37px",
+        "18" : "18px",
       },
       lineHeight: {
         '37.7': '37.7px',
@@ -122,9 +123,12 @@ module.exports = {
         '48.1' : '48,1px',
         '18' : '18px',
         '24' : '24px',
+        '23.4' : '23.4px',
       },
       borderRadius:{
-        "avatar-radius" : "23px 9px"
+        "avatar-radius" : "23px 9px",
+        "20" : "20px",
+        "999": "999px",
       },
       padding: {
         '15': '40px',

@@ -6,6 +6,7 @@ import Articles from "../ui/suzus/userProfile/article";
 import Avatar from "../ui/suzus/userProfile/avatar";
 import ButtonSuzu from "../ui/suzus/userProfile/button";
 import { Input } from "../ui/input";
+import Divider from "../ui/suzus/userProfile/divider";
 
 export default function UserProfile() {
   return (
@@ -79,11 +80,19 @@ export default function UserProfile() {
                     <div className="w-6 h-6 flex flex-col justify-center items-center mr-2">
                       <Image className="p-[2px] m-[2.5px] w-[19px] h-[19px] flex-shrink-0 stroke-2 stroke-slate-700" src={'/images/icons/Icon_19_19.svg'} alt="img text" width={19} height={19} />
                     </div>
-
                   </button>
                 </div>
               </div>
             </div>
+            {/* divider */}
+            <div className="mt-[10px]">
+              <Divider axis="horizontal" />
+            </div>
+            {/* article */}
+            <div className="container">
+              <Articles breakpoint="Desktop" video={false} image={false} />
+            </div>
+
 
           </div>
 

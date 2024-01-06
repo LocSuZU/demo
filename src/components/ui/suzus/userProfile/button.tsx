@@ -12,6 +12,7 @@ const ButtonSuzu: React.FC<ButtonSuzuProps> = ({ LeadingIcon, Text, TailingIcon 
           <p className="text-slate-900 font-openSans text-15 font-semibold not-italic leading-6">{Text}</p>
         </div>
       )}
+
     </div>
 
   );
