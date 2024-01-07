@@ -96,12 +96,21 @@ module.exports = {
         "Content-breakpoint-Desktop" : '574px',
         "92" : "92px", 
         "15" : "40px",
+        "7" : "7px",
       },
       height : {
         "92" : "92px",
         "434" : "434px",
         "80" : "80px",
         "120" : "120px",
+        "7" : "7px",
+      },
+      margin: {
+        '2.5' : '2.5px',
+
+      },
+      padding: {
+
       },
       minWidth: {
         "Desktop" : '1440px',

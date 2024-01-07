@@ -4,6 +4,7 @@ import slugify from "slugify";
 import {accented} from "@/lib/contants/contants";
 import { PutBlobResult } from "@vercel/blob";
 
+
 type SlugifyOptions = {
   lower?: boolean;
   replacement?: string;

@@ -42,7 +42,7 @@ export default function UserProfile() {
             </div>
           </div>
           <div className="w-[92px] h-[92px] flex flex-col items-start">
-            <Avatar />
+            <Avatar icon={false} image={false} text="AB" size={{ w: 'w-2.5', h: 'h-2.5' }} />
           </div>
 
         </div>
@@ -77,9 +77,9 @@ export default function UserProfile() {
                 </div>
                 <div className="flex w-6 h-6 px-4 py-2 ml-1 flex-col justify-center items-center gap-1 rounded-[999px] ">
                   <button className="flex items-start gap-2 rounded-[999px] mx-4 mb-2">
-                    <div className="w-6 h-6 flex flex-col justify-center items-center mr-2">
+                    {/* <div className="w-6 h-6 flex flex-col justify-center items-center mr-2">
                       <Image className="p-[2px] m-[2.5px] w-[19px] h-[19px] flex-shrink-0 stroke-2 stroke-slate-700" src={'/images/icons/Icon_19_19.svg'} alt="img text" width={19} height={19} />
-                    </div>
+                    </div> */}
                   </button>
                 </div>
               </div>
