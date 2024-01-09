@@ -12,6 +12,8 @@ module.exports = {
         "2xl": "1400px",
       },
     },
+   
+
     
     extend: {
       colors: {
@@ -97,6 +99,8 @@ module.exports = {
         "92" : "92px", 
         "15" : "40px",
         "7" : "7px",
+        '510' : '510px',
+        '10' : '20px',
       },
       height : {
         "92" : "92px",
@@ -104,6 +108,8 @@ module.exports = {
         "80" : "80px",
         "120" : "120px",
         "7" : "7px",
+        "15" : "40px",
+        '10' : '20px',        
       },
       margin: {
         '2.5' : '2.5px',
@@ -136,6 +142,7 @@ module.exports = {
       },
       borderRadius:{
         "avatar-radius" : "23px 9px",
+        "avatar-radius-sm" : "10px 4px",
         "20" : "20px",
         "999": "999px",
       },
