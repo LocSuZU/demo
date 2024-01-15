@@ -91,25 +91,32 @@ export default function UserProfile() {
                     </div>
                   </div>
                 </div>
-                <div className="ml-2 flex p-0 ml-2 items-center gap-1 flex-grow flex-shrink-0 basis-0 rounded-none">
-                  <Input className="ml-1 flex items-start flex-grow flex-shrink-0 basis-0 " type="text" placeholder="Chia sẻ Suzu của bạn..." />
+                <div className="mr-2 flex items-start flex-grow flex-shrink-0 basis-0">
+                  <input className="flex items-center justify-center flex-wrap rounded-none " type="text" placeholder="Chia sẻ Suzu của bạn..." />
                 </div>
-                <div className="flex w-6 h-6 px-4 py-2 ml-1 flex-col justify-center items-center gap-1 rounded-[999px] ">
+                <div className="ml-1 flex w-6 h-6 px-4 py-2 flex-col justify-center items-center gap-1 rounded-[999px] ">
                   <button className="flex items-start gap-2 rounded-[999px] mx-4 mb-2">
-                    <div className="w-6 h-6 flex flex-col justify-center items-center mr-2">
-                      <Image className="p-[2px] m-[2.5px] w-[19px] h-[19px] flex-shrink-0 stroke-2 stroke-slate-700" src={'/images/icons/Icon_19_19.svg'} alt="img text" width={19} height={19} />
+                    <div className="flex flex-col items-center justify-center mr-2">
+                      <div className="w-6 h-6">
+                        <div className="m-[2.5px]  flex-shrink-0 gap-[2px] stroke-slate-700 stroke-2 ">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 22 22" fill="none">
+                            <path d="M11 2.5L6.3 2.5C4.61984 2.5 3.77976 2.5 3.13803 2.82698C2.57354 3.1146 2.1146 3.57354 1.82698 4.13803C1.5 4.77976 1.5 5.61984 1.5 7.3L1.5 15.7C1.5 17.3802 1.5 18.2202 1.82698 18.862C2.1146 19.4265 2.57354 19.8854 3.13803 20.173C3.77976 20.5 4.61984 20.5 6.3 20.5L15.5 20.5C16.43 20.5 16.895 20.5 17.2765 20.3978C18.3117 20.1204 19.1204 19.3117 19.3978 18.2765C19.5 17.895 19.5 17.43 19.5 16.5M17.5 7.5V1.5M14.5 4.5L20.5 4.5M9 8C9 9.10457 8.10457 10 7 10C5.89543 10 5 9.10457 5 8C5 6.89543 5.89543 6 7 6C8.10457 6 9 6.89543 9 8ZM13.49 11.4181L5.03115 19.108C4.55536 19.5406 4.31747 19.7568 4.29643 19.9442C4.27819 20.1066 4.34045 20.2676 4.46319 20.3755C4.60478 20.5 4.92628 20.5 5.56929 20.5L14.956 20.5C16.3951 20.5 17.1147 20.5 17.6799 20.2582C18.3894 19.9547 18.9547 19.3894 19.2582 18.6799C19.5 18.1147 19.5 17.3951 19.5 15.956C19.5 15.4717 19.5 15.2296 19.4471 15.0042C19.3805 14.7208 19.253 14.4554 19.0733 14.2264C18.9303 14.0442 18.7412 13.8929 18.3631 13.5905L15.5658 11.3527C15.1874 11.0499 14.9982 10.8985 14.7898 10.8451C14.6061 10.798 14.4129 10.8041 14.2325 10.8627C14.0279 10.9291 13.8486 11.0921 13.49 11.4181Z" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   </button>
                 </div>
               </div>
             </div>
             {/* divider */}
-            <div className="mt-[10px]">
-              <Divider axis="horizontal" />
+            <div className="mx-[10px] px-4 flex w-Content-breakpoint-Desktop items-start gap-1 rounded-999">
+              <div className="mx-4 h-[1px] flex-grow flex-shrink-0 basis-0 rounded-none bg-gray-100">
+              </div>
             </div>
             {/* article */}
-            <div className="container">
-              <Articles breakpoint="Desktop" video={false} image={false} />
+            <div className="container my-[10px] py-4 flex flex-col items-start gap-6 self-stretch rounded-20 bg-white">
+              <Articles breakpoint="Desktop" pag={false} video={false} image={false} />
             </div>
           </div>
 

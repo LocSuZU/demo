@@ -8,7 +8,7 @@ export default async function Home() {
   const { session } = await getUserAuth();
   return (
     <>
-      <UserProfile />
+      {/* <UserProfile /> */}
       {/* <div>
           <Link href="/posts"> Posts </Link>
         </div>
@@ -24,7 +24,7 @@ export default async function Home() {
         <div>
           <Link href="https://demo-98.vercel.app/"> Vercel App </Link>
         </div> */}
-      {/* <SignIn /> */}
+      <SignIn />
     </>
   );
 }

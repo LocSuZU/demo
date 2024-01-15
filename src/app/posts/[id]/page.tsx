@@ -388,8 +388,9 @@ export default function PostDetail({ params, post }: { params: { id: Number }, p
                 <p>{dislikeCount}</p>
               </label>
             </div><div>
-              <Button onClick={(event) => handleLike(event)}>Like</Button>
-              <Button onClick={(event) => handleDisLike(event)}>DisLike</Button>
+              <button onClick={(event) => handleLike(event)}>Like</button>
+              <br />
+              <button onClick={(event) => handleDisLike(event)}>DisLike</button>
             </div>
             <div>
               {comments && renderComments(comments)}

@@ -20,6 +20,7 @@ declare module "next-auth" {
 }
 
 export type AuthSession = {
+  user: any;
   session: {
     user: {
       id: string;

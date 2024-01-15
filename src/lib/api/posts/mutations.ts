@@ -14,6 +14,9 @@ import {
   likeIdSchema,
   updateLikeSchema
 } from "@/lib/db/schema/posts";
+import { Knock } from "@knocklabs/node";
+const knockClient = new Knock(process.env.NEXT_PUBLIC_KNOCK_SECRET_API_KEY);
+
 import { CommentId, insertCommentSchema , NewCommentParams } from "@/lib/db/schema/comments";
 import { getUserAuth } from "@/lib/auth/utils";
 import { PrismaClient } from "@prisma/client";
@@ -112,6 +115,24 @@ export const likesPost =  async (like :NewLikeParams ) => {
       const getPost = await db.post.findUnique({ where: { id: like.postId },  include: { user: true , likes : true, Share : true , Comment : true } });
       const getPostResult = {...getPost, session : session}
        await pusherServer.trigger(updatePost.id.toString(), "client:like", getPostResult);
+       const otherUser = await db.user.findMany({
+        where : {
+          id: {
+            not :session?.user.id
+          }
+        }
+      })
+      const test = await knockClient.notify('like-post', {
+          actor : session?.user.id,
+          recipients : otherUser.map(user => user.id),
+          data: {
+            variableKey : {
+              action : 'like',
+              target : getPost?.title,
+            }
+          }
+      })
+      console.log(111, test)
       return { like: getLike };
     } catch (err) {
       const message = (err as Error).message ?? "Error, please try again";
